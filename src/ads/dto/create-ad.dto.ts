@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsEnum, IsArray, IsOptional, IsNumber } from "class-validator";
+import { IsString, IsInt, IsEnum, IsArray, IsOptional, IsNumber, IsDateString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
 import { AdStatus, ItemCondition, AdType, PriceCurrency } from "@prisma/client";
 
@@ -59,4 +59,8 @@ export class CreateAdDto {
   @ApiProperty({ description: 'Description of the Ad', example: 'Brand new iPhone 13, never used.' })
   @IsString()
   descriptions: string;
+
+  @ApiProperty({ description: 'Start date of the Ad', example: '2024-03-15T00:00:00Z' })
+  @IsDateString()
+  startDate: any;
 }

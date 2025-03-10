@@ -30,10 +30,6 @@ export class RegisterDto {
   @IsString()
   address: string;
 
-  // @ApiProperty({ description: 'vat number', example: 'example_value' })
-  // @IsOptional()
-  // vatNumber: string;
-
   @ApiProperty({ description: 'VAT Number', example: 'example_value' })
   @ValidateIf((o) => o.role === Role.TRADER_SELLER)
   @IsNotEmpty()

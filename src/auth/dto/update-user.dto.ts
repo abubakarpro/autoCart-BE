@@ -1,77 +1,42 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, IsBoolean, IsEmail } from 'class-validator';
+import { Role } from '@prisma/client';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, ValidateIf } from 'class-validator';
 
 export class UpdateUserDto {
-//   @IsOptional()
-//   @IsString()
-//   profilePic?: string;
-
-@ApiProperty({
-    description: 'The first name of the user',
-    type: String,
-    required: false,
-  })
+  @ApiProperty({ example: 'John Doe', description: 'Full name of the user' })
   @IsOptional()
+  name: string;
+
+  @ApiProperty({ description: 'Business Name', example: 'example_value' })
+  @ValidateIf((o) => o.role === Role.TRADER_SELLER)
+  @IsOptional()
+  businessName: string;
+
+  @ApiProperty({ description: 'address of user', example: 'example_value' })
   @IsString()
-  firstName?: string;
+  address: string;
 
-  @ApiProperty({
-    description: 'The last name of the user',
-    type: String,
-    required: false,
-  })
+  @ApiProperty({ description: 'VAT Number', example: 'example_value' })
+  @ValidateIf((o) => o.role === Role.TRADER_SELLER)
   @IsOptional()
-  @IsString()
-  lastName?: string;
+  vatNumber: string;
 
-  @ApiProperty({
-    description: 'The email of the user',
-    type: String,
-    required: false,
-  })
+  @ApiProperty({ description: 'Dealer License number', example: 'example_value' })
+  @ValidateIf((o) => o.role === Role.TRADER_SELLER)
   @IsOptional()
-  @IsEmail()
-  email?: string;
+  dealerLicense: string;
 
-  @ApiProperty({
-    description: 'The contact number of the user',
-    type: String,
-    required: false,
-  })
+  @ApiProperty({ description: 'profile Image', example: 'example_value' })
   @IsOptional()
-  @IsString()
-  contactNumber?: string;
+  profileImage: string;
 
-  @ApiProperty({
-    description: 'The date of birth of the user',
-    type: String,
-    required: false,
-  })
+  @ApiProperty({ description: 'background Image', example: 'example_value' })
   @IsOptional()
-  @IsString()
-  dateOfBirth?: string;
+  backgroundImage: string;
 
-//   @IsOptional()
-//   @IsString()
-//   address?: string;
+  @ApiProperty({ description: 'phone number', example: 'example_value' })
+  @IsOptional()
+  phoneNumber: string;
 
-//   @IsOptional()
-//   @IsBoolean()
-//   subscription?: boolean;
-
-//   @IsOptional()
-//   @IsBoolean()
-//   is_emailVerified?: boolean;
-
-//   @IsOptional()
-//   @IsBoolean()
-//   is_contactNumberVerified?: boolean;
-
-//   @IsOptional()
-//   @IsBoolean()
-//   is_Active?: boolean;
-
-//   @IsOptional()
-//   @IsBoolean()
-//   is_Deleted?: boolean;
 }
+

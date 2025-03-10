@@ -10,34 +10,87 @@ export class FollowerService {
   async followUser(followerId: string, followingId: string) {
     try {
       if (followerId === followingId) throw new Error('Cannot follow yourself');
-      return this.prisma.follower.create({
+      const result = await this.prisma.follower.create({
         data: {
           followerId,
           followingId,
         },
       });
+      return {
+        success: true,
+        message: 'Successfully followed the user.',
+        data: result,
+      };
     } catch (error) {
       throw error;
     }
   }
 
   async unfollowUser(followerId: string, followingId: string) {
-    return this.prisma.follower.deleteMany({
-      where: { followerId, followingId },
-    });
+    try {
+      const unfollow = await this.prisma.follower.deleteMany({
+        where: { followerId, followingId },
+      });
+      return {
+        success: true,
+        message: 'Successfully unfollowed the user.',
+        data: unfollow,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   async getFollowers(userId: string) {
-    return this.prisma.follower.findMany({
-      where: { followingId: userId },
-      include: { follower: true },
-    });
+    try {
+      const followers = await this.prisma.follower.findMany({
+        where: { followingId: userId },
+        include: {
+          follower: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              address: true,
+              profileImage: true,
+              phoneNumber: true,
+            },
+          },
+        },
+      });
+      return {
+        success: true,
+        message: 'Successfully retrieved the list of followers for the user.',
+        data: followers,
+      };
+    } catch (error) {}
   }
 
   async getFollowing(userId: string) {
-    return this.prisma.follower.findMany({
-      where: { followerId: userId },
-      include: { following: true },
-    });
+    try {
+      const followingUser = await this.prisma.follower.findMany({
+        where: { followerId: userId },
+        include: {
+          following: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              address: true,
+              profileImage: true,
+              phoneNumber: true,
+            },
+          },
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Successfully retrieved the list of users the user is following.',
+        data: followingUser,
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }

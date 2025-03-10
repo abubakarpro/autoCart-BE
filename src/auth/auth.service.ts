@@ -82,7 +82,9 @@ export class AuthService {
 
       const user = await this.prismaService.user.findUnique({
         where: { email: email.toLowerCase() },
-        select: { id: true },
+        select: { 
+          id: true 
+        },
       });
 
       if (!user) {
@@ -93,7 +95,10 @@ export class AuthService {
       return {
         success: true,
         message: 'User verified!',
-        data: { access_token: token },
+        data: { 
+          access_token: token,
+          id: user.id,
+        },
       };
     } catch (error) {
       throw error;
@@ -125,7 +130,7 @@ export class AuthService {
       message: 'Login successful',
       data: {
         access_token: token,
-        user: user.id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,

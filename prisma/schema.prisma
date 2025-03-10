@@ -46,7 +46,7 @@ model User {
   businessName     String?
   address          String
   vatNumber        String?
-  dealerLicense    String
+  dealerLicense    String?
   profileImage     String?
   backgroundImage  String?
   phoneNumber      String
@@ -100,6 +100,7 @@ model Ads {
   condition            ItemCondition
   priceCurrency        PriceCurrency
   descriptions         String?
+  createDate           DateTime?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 }
