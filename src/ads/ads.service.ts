@@ -1,32 +1,53 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateAdDto } from './dto/create-ad.dto';
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from '../prisma/prisma.service';
+import { StoryService } from '../story/story.service';
+import { User } from '../common/user.interface';
 
 @Injectable()
 export class AdsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private storyService: StoryService,
+  ) {}
 
-
-  async create(data: CreateAdDto) {
+  async create(data: CreateAdDto, user: User) {
     try {
-      const ad = await this.prisma.ads.create({ data });
+      const ad = await this.prisma.ads.create({
+        data: {
+          ...data,
+          userId: user.id,
+        },
+      });
+
+      if (data?.uploadImagesForStory && data.uploadImagesForStory.length > 0) {
+        const dataForStory = {
+          uploadImagesForStory: data.uploadImagesForStory,
+          adId: ad.id,
+        };
+        await this.storyService.create(dataForStory, user);
+      }
       return {
         success: true,
         data: ad,
-        message: "Ad created successfully",
+        message: 'Ad created successfully',
       };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
   async findAll() {
     try {
-      const ads = await this.prisma.ads.findMany();
+      const ads = await this.prisma.ads.findMany({
+        include: {
+          user: true,
+        },
+      });
       return {
         success: true,
         data: ads,
-        message: "Ads fetched successfully",
+        message: 'Ads fetched successfully',
       };
     } catch (error) {
       throw error;
@@ -35,14 +56,22 @@ export class AdsService {
 
   async findOne(id: string) {
     try {
-      const ads = await this.prisma.user.findUnique({ where: { id } });
+      const ads = await this.prisma.ads.findUnique({
+        where: { id },
+        include: {
+          user: true, 
+        },
+      });
       if (!ads) {
-        throw new HttpException(`Ad with id ${id} not found`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Ad with id ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
       return {
         success: true,
         data: ads,
-        message: "Ad fetched successfully",
+        message: 'Ad fetched successfully',
       };
     } catch (error) {
       throw error;
@@ -55,7 +84,7 @@ export class AdsService {
       return {
         success: true,
         data: ads,
-        message: "Ad updated successfully",
+        message: 'Ad updated successfully',
       };
     } catch (error) {
       throw error;
@@ -68,7 +97,7 @@ export class AdsService {
       return {
         success: true,
         data: ads,
-        message: "Ad deleted successfully",
+        message: 'Ad deleted successfully',
       };
     } catch (error) {
       throw error;

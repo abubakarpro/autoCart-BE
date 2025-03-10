@@ -13,7 +13,7 @@ export class CategoryService {
       return {
         success: true,
         data: category,
-        message: "Category created successfully",
+        message: "Successfully Category created",
       };
     } catch (error) {
       throw error
@@ -26,7 +26,7 @@ export class CategoryService {
       return {
         success: true,
         data: categories,
-        message: "Category fetched successfully",
+        message: "Successfully Category fetched",
       };
     } catch (error) {
       throw error;

@@ -8,7 +8,7 @@ export class CreateAdDto {
   categoryId: string;
 
   @ApiProperty({ description: 'ID of the user', example: 1 })
-  @IsString()
+  @IsOptional()
   userId: string;
 
   @ApiProperty({ description: 'Images for Ad', example: ['image1.jpg', 'image2.jpg'] })
@@ -62,5 +62,6 @@ export class CreateAdDto {
 
   @ApiProperty({ description: 'Start date of the Ad', example: '2024-03-15T00:00:00Z' })
   @IsDateString()
-  startDate: any;
+  @IsOptional()
+  createDate: any;
 }

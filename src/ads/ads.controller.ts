@@ -3,6 +3,7 @@ import { JwtGuard } from "../auth/jwt/jwt.guard";
 import { GetUser } from "../auth/jwt/get-user.decorator";
 import { AdsService } from './ads.service';
 import { CreateAdDto } from './dto/create-ad.dto';
+import { User } from '../common/user.interface';
 
 @Controller('ads')
 export class AdsController {
@@ -10,8 +11,8 @@ export class AdsController {
 
   @Post()
   @UseGuards(JwtGuard)
-  create(@Body() createAdDto: CreateAdDto) {
-    return this.adsService.create(createAdDto);
+  create(@Body() createAdDto: CreateAdDto, @GetUser() user:User) {
+    return this.adsService.create(createAdDto, user);
   }
 
   @Get()
