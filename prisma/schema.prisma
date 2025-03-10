@@ -53,6 +53,7 @@ model User {
   ads              Ads[]
   followers        Follower[] @relation("followers")
   following        Follower[] @relation("following")
+  story            Story[]
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   is_emailVerified Boolean    @default(false)
@@ -100,7 +101,8 @@ model Ads {
   condition            ItemCondition
   priceCurrency        PriceCurrency
   descriptions         String?
-  createDate           DateTime?
+  createDate           DateTime? @default(now())
+  story                Story[]
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 }
@@ -115,4 +117,14 @@ model Follower {
   updatedAt   DateTime @updatedAt
 
   @@unique([followerId, followingId]) // Prevent duplicate follows
+}
+
+model Story {
+  id                   String   @id @default(uuid())
+  uploadImagesForStory String[]
+  createdAt            DateTime @default(now())
+  adId                 String?
+  ad                   Ads?     @relation(fields: [adId], references: [id])
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id])
 }
