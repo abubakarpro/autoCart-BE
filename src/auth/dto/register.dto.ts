@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '@prisma/client';
+import { Role, UserStatus } from '@prisma/client';
 import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, ValidateIf } from 'class-validator';
 
 export class RegisterDto {
@@ -51,4 +51,8 @@ export class RegisterDto {
   @ApiProperty({ description: 'phone number', example: 'example_value' })
   @IsOptional()
   phoneNumber: string;
+
+  @ApiProperty({ description: 'Currency of the Price', enum: UserStatus })
+  @IsEnum(UserStatus)
+  status: UserStatus;
 }

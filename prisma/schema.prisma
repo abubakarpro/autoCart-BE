@@ -32,6 +32,12 @@ enum AdStatus {
   REJECTED
 }
 
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
 enum ItemCondition {
   NEW
   OLD
@@ -50,6 +56,7 @@ model User {
   profileImage     String?
   backgroundImage  String?
   phoneNumber      String
+  status           UserStatus @default(ACTIVE)
   ads              Ads[]
   followers        Follower[] @relation("followers")
   following        Follower[] @relation("following")
@@ -101,7 +108,7 @@ model Ads {
   condition            ItemCondition
   priceCurrency        PriceCurrency
   descriptions         String?
-  createDate           DateTime? @default(now())
+  createDate           DateTime?     @default(now())
   story                Story[]
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt

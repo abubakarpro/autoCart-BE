@@ -1,6 +1,6 @@
-import { IsString, IsInt, IsEnum, IsArray, IsOptional, IsNumber, IsDateString } from "class-validator";
+import { IsString, IsEnum, IsArray, IsOptional, IsNumber, IsDateString } from "class-validator";
 import { ApiProperty } from '@nestjs/swagger';
-import { AdStatus, ItemCondition, AdType, PriceCurrency } from "@prisma/client";
+import { AdStatus, ItemCondition, AdType, PriceCurrency} from "@prisma/client";
 
 export class CreateAdDto {
   @ApiProperty({ description: 'ID of the Category', example: 1 })
