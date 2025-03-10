@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  TRADER_SELLER
+  PRIVATE_SELLER
+}
+
+enum PriceCurrency {
+  EURO
+  POUND
+}
+
+enum AdType {
+  SELLER
+  WANTED
+}
+
+enum AdStatus {
+  NEW
+  USED
+  ACTIVE
+  EXPIRED
+  PENDING
+  REJECTED
+}
+
+enum ItemCondition {
+  NEW
+  OLD
+}
+
+model User {
+  id               String     @id @default(uuid())
+  name             String
+  email            String     @unique
+  password         String
+  role             Role
+  businessName     String?
+  address          String
+  vatNumber        String?
+  dealerLicense    String
+  profileImage     String?
+  backgroundImage  String?
+  phoneNumber      String
+  ads              Ads[]
+  followers        Follower[] @relation("followers")
+  following        Follower[] @relation("following")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  is_emailVerified Boolean    @default(false)
+}
+
+model VerifyUser {
+  id                String   @id @default(uuid())
+  username          String   @unique
+  otp               String
+  usernameType      String
+  type              Role
+  verificationTries Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  is_Active  Boolean @default(true)
+  is_Deleted Boolean @default(false)
+
+  @@map(name: "verifyUser")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique()
+  ads       Ads[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ads {
+  id                   String        @id @default(uuid())
+  categoryId           String
+  category             Category      @relation(fields: [categoryId], references: [id])
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id])
+  uploadImagesForAd    String[]
+  uploadImagesForStory String[]
+  vehicleLicenseNumber String?
+  itemName             String
+  status               AdStatus
+  adType               AdType
+  phoneNumber          String
+  location             String
+  price                Float
+  condition            ItemCondition
+  priceCurrency        PriceCurrency
+  descriptions         String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+}
+
+model Follower {
+  id          String   @id @default(uuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([followerId, followingId]) // Prevent duplicate follows
+}
