@@ -43,10 +43,21 @@ enum ItemCondition {
   OLD
 }
 
+enum MileageParameter {
+  KM
+  MILES
+}
+
+enum InteractionType {
+  LIKE
+  VIEW
+  SHARE
+}
+
 model User {
-  id               String     @id @default(uuid())
+  id               String          @id @default(uuid())
   name             String
-  email            String     @unique
+  email            String          @unique
   password         String
   role             Role
   businessName     String?
@@ -56,14 +67,15 @@ model User {
   profileImage     String?
   backgroundImage  String?
   phoneNumber      String
-  status           UserStatus @default(ACTIVE)
+  status           UserStatus      @default(ACTIVE)
   ads              Ads[]
-  followers        Follower[] @relation("followers")
-  following        Follower[] @relation("following")
+  followers        Follower[]      @relation("followers")
+  following        Follower[]      @relation("following")
   story            Story[]
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  is_emailVerified Boolean    @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  is_emailVerified Boolean         @default(false)
+  AdInteraction    AdInteraction[]
 }
 
 model VerifyUser {
@@ -107,11 +119,22 @@ model Ads {
   price                Float
   condition            ItemCondition
   priceCurrency        PriceCurrency
-  descriptions         String?
-  createDate           DateTime?     @default(now())
-  story                Story[]
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+
+  mileageParameter MileageParameter?
+  mileage          Float?
+  motStatus        String?
+  commercialsMake  String?
+  commercialModel  String?
+  yearOfProduction Int?
+  loadCapacity     Float?
+  engineSize       Int?
+
+  descriptions  String?
+  createDate    DateTime?       @default(now())
+  story         Story[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  AdInteraction AdInteraction[]
 }
 
 model Follower {
@@ -124,6 +147,17 @@ model Follower {
   updatedAt   DateTime @updatedAt
 
   @@unique([followerId, followingId]) // Prevent duplicate follows
+}
+
+model AdInteraction {
+  id        String          @id @default(uuid())
+  adId      String
+  userId    String?
+  ad        Ads             @relation(fields: [adId], references: [id])
+  user      User?            @relation(fields: [userId], references: [id])
+  type      InteractionType
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 }
 
 model Story {

@@ -26,6 +26,7 @@ export class AdsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtGuard)
   update(@Param('id') id: string, @Body() updateAdDto: CreateAdDto) {
     return this.adsService.update(id, updateAdDto);
   }
