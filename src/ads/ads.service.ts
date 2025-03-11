@@ -42,11 +42,32 @@ export class AdsService {
       const ads = await this.prisma.ads.findMany({
         include: {
           user: true,
+          _count: {
+            select: {
+              AdInteraction: true,
+            },
+          },
         },
       });
+  
+      const formattedAds = await Promise.all(ads.map(async (ad) => {
+        const [likes, views, shares] = await Promise.all([
+          this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'LIKE' } }),
+          this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'VIEW' } }),
+          this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'SHARE' } }),
+        ]);
+  
+        return { 
+          ...ad, 
+          likes, 
+          views, 
+          shares 
+        };
+      }));
+  
       return {
         success: true,
-        data: ads,
+        data: formattedAds,
         message: 'Ads fetched successfully',
       };
     } catch (error) {
@@ -56,21 +77,33 @@ export class AdsService {
 
   async findOne(id: string) {
     try {
-      const ads = await this.prisma.ads.findUnique({
+      // Fetch the ad details with associated user data
+      const ad = await this.prisma.ads.findUnique({
         where: { id },
-        include: {
-          user: true, 
-        },
+        include: { user: true },
       });
-      if (!ads) {
+  
+      if (!ad) {
         throw new HttpException(
           `Ad with id ${id} not found`,
           HttpStatus.NOT_FOUND,
         );
       }
+  
+      const [likes, views, shares] = await Promise.all([
+        this.prisma.adInteraction.count({ where: { adId: id, type: 'LIKE' } }),
+        this.prisma.adInteraction.count({ where: { adId: id, type: 'VIEW' } }),
+        this.prisma.adInteraction.count({ where: { adId: id, type: 'SHARE' } }),
+      ]);
+  
       return {
         success: true,
-        data: ads,
+        data: { 
+          ...ad,
+          likes,
+          views,
+          shares
+        },
         message: 'Ad fetched successfully',
       };
     } catch (error) {

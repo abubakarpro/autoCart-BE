@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Param, Delete, UseGuards } from '@nestjs/common';
 import { FollowerService } from './follower.service';
 import { JwtGuard } from "../auth/jwt/jwt.guard";
-import { CreateFollowerDto } from './dto/create-follower.dto';
-import { UpdateFollowerDto } from './dto/update-follower.dto';
 
 @Controller('follower')
 export class FollowerController {

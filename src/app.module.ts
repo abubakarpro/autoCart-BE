@@ -9,6 +9,7 @@ import { CategoryModule } from './category/category.module';
 import { FollowerModule } from './follower/follower.module';
 import { StoryModule } from './story/story.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { AdInteractionModule } from './ad-interaction/ad-interaction.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     FollowerModule,
     StoryModule,
     CloudinaryModule,
+    AdInteractionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
