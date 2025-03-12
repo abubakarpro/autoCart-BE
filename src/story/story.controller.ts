@@ -11,14 +11,39 @@ import { Cron } from '@nestjs/schedule';
 export class StoryController {
   constructor(private readonly storyService: StoryService) {}
 
+  @Post(':storyId/view')
+  async viewStory(@Param('storyId') storyId: string, @GetUser() user: User) {
+    return this.storyService.viewStory(storyId, user.id);
+  }
+
   @Post()
   create(@Body() createStoryDto: CreateStoryDto, @GetUser() user: User) {
     return this.storyService.create(createStoryDto, user);
   }
 
+  @Get('viewed-stories')
+  async getViewedStories(@GetUser() user: User) {
+    return this.storyService.getViewedStoriesByUser(user.id);
+  }
+
+  @Get('following-stories')
+  async getFollowingStories(@GetUser() user: User) {
+    return this.storyService.getStoriesOfFollowingUsers(user.id);
+  }
+
+  @Get(':storyId/views-count')
+  async getStoryViews(@Param('storyId') storyId: string) {
+    return this.storyService.getStoryViews(storyId);
+  }
+
   @Get('active')
   getActiveStories(@GetUser() user: User) {
     return this.storyService.getActiveStories(user);
+  }
+
+  @Get('trending')
+  async getTrendingStories() {
+    return this.storyService.getTrendingStories();
   }
 
   @Get()
