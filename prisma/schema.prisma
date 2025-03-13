@@ -54,6 +54,15 @@ enum InteractionType {
   SHARE
 }
 
+enum NotificationType {
+  STORY_VIEW
+  STORY_LIKE
+  NEW_FOLLOWER
+  COMMENT
+  SYSTEM_ALERT
+  CUSTOM
+}
+
 model User {
   id               String          @id @default(uuid())
   name             String
@@ -77,6 +86,7 @@ model User {
   updatedAt        DateTime        @updatedAt
   is_emailVerified Boolean         @default(false)
   AdInteraction    AdInteraction[]
+  notifications    Notification[]
 }
 
 model VerifyUser {
@@ -155,20 +165,20 @@ model AdInteraction {
   adId      String
   userId    String?
   ad        Ads             @relation(fields: [adId], references: [id])
-  user      User?            @relation(fields: [userId], references: [id])
+  user      User?           @relation(fields: [userId], references: [id])
   type      InteractionType
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 }
 
 model Story {
-  id                   String   @id @default(uuid())
+  id                   String      @id @default(uuid())
   uploadImagesForStory String[]
-  createdAt            DateTime @default(now())
+  createdAt            DateTime    @default(now())
   adId                 String?
-  ad                   Ads?     @relation(fields: [adId], references: [id])
+  ad                   Ads?        @relation(fields: [adId], references: [id])
   userId               String
-  user                 User     @relation(fields: [userId], references: [id])
+  user                 User        @relation(fields: [userId], references: [id])
   views                StoryView[]
 }
 
@@ -181,4 +191,17 @@ model StoryView {
   createdAt DateTime @default(now())
 
   @@unique([userId, storyId]) // Ensure one user can only view a story once
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String?
+  user        User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  content     String
+  link        String?
+  isRead      Boolean          @default(false)
+  isBroadcast Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
