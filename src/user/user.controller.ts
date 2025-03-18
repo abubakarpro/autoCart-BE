@@ -1,49 +1,87 @@
-
-import { Controller, Get, Post, Body, Param, Delete, Put } from "@nestjs/common";
-import { UserService } from "./user.service";
-import { CreateUserDto } from "./dto/create-user.dto";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
+import { UserService } from './user.service';
+import { JwtGuard } from '../auth/jwt/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role, UserStatus } from '@prisma/client';
+import { GetUser } from "../auth/jwt/get-user.decorator";
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('User')
-@Controller("user")
+@Controller('users')
+@UseGuards(JwtGuard, RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Post()
-  // @ApiOperation({ summary: 'Create a new User' })
-  // @ApiResponse({ status: 201, description: 'The User has been successfully created.' })
-  // create(@Body() createDto: CreateUserDto) {
-  //   return this.userService.create(createDto);
-  // }
-
   @Get()
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get all Users' })
   @ApiResponse({ status: 200, description: 'List of all Users.' })
-  findAll() {
-    return this.userService.findAll();
+  async getAllUsers(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('search') search?: string,
+    @Query('role') role?: Role,
+    @Query('status') status?: UserStatus,
+  ) {
+    return this.userService.findAll({
+      page,
+      limit,
+      search,
+      role,
+      status,
+    });
   }
 
-  @Get(":id")
+  @Get(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get a User by ID' })
   @ApiResponse({ status: 200, description: 'The User with the given ID.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  findOne(@Param("id") id: string) {
+  async getUserById(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
 
-  @Put(":id")
-  @ApiOperation({ summary: 'Update a User by ID' })
-  @ApiResponse({ status: 200, description: 'The User has been successfully updated.' })
+  @Patch(':id/status')
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Update a User status by ID' })
+  @ApiResponse({ status: 200, description: 'The User status has been successfully updated.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  update(@Param("id") id: string, @Body() updateDto: CreateUserDto) {
-    return this.userService.update(id, updateDto);
+  async updateUserStatus(
+    @Param('id') id: string,
+    @Body('status') status: UserStatus,
+    @GetUser('id') adminId: string,
+  ) {
+    return this.userService.updateStatus(id, status, adminId);
   }
 
-  @Delete(":id")
+  @Delete(':id')
+  @Roles(Role.SUPER_ADMIN)
   @ApiOperation({ summary: 'Delete a User by ID' })
   @ApiResponse({ status: 200, description: 'The User has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  remove(@Param("id") id: string) {
-    return this.userService.delete(id);
+  async deleteUser(
+    @Param('id') id: string,
+    @GetUser('id') adminId: string,
+  ) {
+    return this.userService.remove(id, adminId);
+  }
+
+  @Get('stats/overview')
+  @Roles(Role.SUPER_ADMIN)
+  @ApiOperation({ summary: 'Get user statistics' })
+  @ApiResponse({ status: 200, description: 'User statistics retrieved successfully.' })
+  async getUserStats() {
+    return this.userService.getUserStats();
   }
 }
