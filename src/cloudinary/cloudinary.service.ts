@@ -5,6 +5,16 @@ import { Express } from 'express';
 
 @Injectable()
 export class CloudinaryService {
+  private readonly allowedMimeTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff'
+  ];
+
   constructor(private readonly configService: ConfigService) {
     const cloudName = this.configService.get('CLOUDINARY_CLOUD_NAME');
     const apiKey = this.configService.get('CLOUDINARY_API_KEY');
@@ -24,8 +34,18 @@ export class CloudinaryService {
     });
   }
 
+  private validateImageFile(file: Express.Multer.File): void {
+    if (!this.allowedMimeTypes.includes(file.mimetype)) {
+      throw new HttpException(
+        `Invalid file type. Allowed types are: ${this.allowedMimeTypes.join(', ')}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   async uploadImage(file: Express.Multer.File): Promise<UploadApiResponse> {
     try {
+      this.validateImageFile(file);
       return new Promise((resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
@@ -39,6 +59,16 @@ export class CloudinaryService {
           )
           .end(file.buffer);
       });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async uploadMultipleImages(files: Express.Multer.File[]): Promise<UploadApiResponse[]> {
+    try {
+      files.forEach(file => this.validateImageFile(file));
+      const uploadPromises = files.map(file => this.uploadImage(file));
+      return await Promise.all(uploadPromises);
     } catch (error) {
       throw error;
     }
