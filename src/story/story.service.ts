@@ -113,7 +113,6 @@ export class StoryService {
         },
       },
     });
-    console.log('Expired stories deleted successfully.');
   }
 
   async viewStory(storyId: string, userId: string) {

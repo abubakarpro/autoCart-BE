@@ -84,6 +84,7 @@ model User {
   storyView        StoryView[]
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
+  lastLogin        DateTime?
   is_emailVerified Boolean           @default(false)
   AdInteraction    AdInteraction[]
   notifications    Notification[]

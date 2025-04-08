@@ -12,6 +12,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdInteractionModule } from './ad-interaction/ad-interaction.module';
 import { NotificationModule } from './notification/notification.module';
 import { ChatModule } from './chat/chat.module';
+import { DashboardAnalyticsModule } from './dashboard-analytics/dashboard-analytics.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { ChatModule } from './chat/chat.module';
     CloudinaryModule,
     AdInteractionModule,
     NotificationModule,
-    ChatModule
+    ChatModule,
+    DashboardAnalyticsModule
   ],
   controllers: [AppController],
   providers: [AppService],
