@@ -11,6 +11,7 @@ import { StoryModule } from './story/story.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AdInteractionModule } from './ad-interaction/ad-interaction.module';
 import { NotificationModule } from './notification/notification.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import { NotificationModule } from './notification/notification.module';
     StoryModule,
     CloudinaryModule,
     AdInteractionModule,
-    NotificationModule
+    NotificationModule,
+    ChatModule
   ],
   controllers: [AppController],
   providers: [AppService],
