@@ -1,8 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { comparePassword, hashPassword } from 'src/utils/utility.functions';
@@ -82,8 +78,8 @@ export class AuthService {
 
       const user = await this.prismaService.user.findUnique({
         where: { email: email.toLowerCase() },
-        select: { 
-          id: true 
+        select: {
+          id: true,
         },
       });
 
@@ -95,7 +91,7 @@ export class AuthService {
       return {
         success: true,
         message: 'User verified!',
-        data: { 
+        data: {
           access_token: token,
           id: user.id,
         },
@@ -113,7 +109,6 @@ export class AuthService {
       where: { email },
     });
 
-
     if (!user) {
       throw new HttpException('User not found.', HttpStatus.NOT_FOUND);
     }
@@ -124,6 +119,11 @@ export class AuthService {
     }
 
     const token = await this.generateToken(user.id);
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    });
 
     return {
       success: true,
@@ -156,7 +156,10 @@ export class AuthService {
     const jwt_expiryTime = this.configService.get<number>('JWT_EXPIRY_TIME');
 
     if (!jwt_secret || !jwt_expiryTime) {
-      throw new HttpException('JWT secret or expiry time is missing in environment variables.', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'JWT secret or expiry time is missing in environment variables.',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return this.jwt.signAsync(payload, {

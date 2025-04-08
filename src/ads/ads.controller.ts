@@ -19,7 +19,6 @@ export class AdsController {
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
   findAll(@GetUser() user?:User) {
-    console.log("user", user)
     return this.adsService.findAll(user);
   }
 

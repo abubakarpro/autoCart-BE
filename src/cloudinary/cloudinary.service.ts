@@ -95,7 +95,6 @@ export class CloudinaryService {
 
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    console.log("file", file)
     const fileKey = `uploads/${uuidv4()}-${file.originalname}`;
 
     const command = new PutObjectCommand({
