@@ -64,9 +64,9 @@ enum NotificationType {
 }
 
 model User {
-  id               String          @id @default(uuid())
+  id               String            @id @default(uuid())
   name             String
-  email            String          @unique
+  email            String            @unique
   password         String
   role             Role
   businessName     String?
@@ -76,17 +76,19 @@ model User {
   profileImage     String?
   backgroundImage  String?
   phoneNumber      String
-  status           UserStatus      @default(ACTIVE)
+  status           UserStatus        @default(ACTIVE)
   ads              Ads[]
-  followers        Follower[]      @relation("followers")
-  following        Follower[]      @relation("following")
+  followers        Follower[]        @relation("followers")
+  following        Follower[]        @relation("following")
   story            Story[]
   storyView        StoryView[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  is_emailVerified Boolean         @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  is_emailVerified Boolean           @default(false)
   AdInteraction    AdInteraction[]
   notifications    Notification[]
+  ChatParticipant  ChatParticipant[]
+  Message          Message[]
 }
 
 model VerifyUser {
@@ -204,4 +206,42 @@ model Notification {
   isBroadcast Boolean          @default(false)
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+}
+
+model ChatRoom {
+  id           String            @id @default(uuid())
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime? // Soft delete field
+  messages     Message[]
+  participants ChatParticipant[]
+}
+
+model ChatParticipant {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  chatRoomId String
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  deletedAt    DateTime? // Soft delete field
+
+  @@unique([userId, chatRoomId])
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  chatRoomId String
+  senderId   String
+  content    String?
+  fileUrls   String[]
+  createdAt  DateTime @default(now())
+  deletedAt  DateTime? // Soft delete field
+
+  reported    Boolean  @default(false) 
+  reportReason String? 
+
+  chatRoom ChatRoom @relation(fields: [chatRoomId], references: [id])
+  sender   User     @relation(fields: [senderId], references: [id])
 }
