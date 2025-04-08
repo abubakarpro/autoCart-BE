@@ -15,6 +15,7 @@ async function bootstrap() {
     transformOptions: { enableImplicitConversion: true },
   });
   app.useGlobalPipes(apiValidationPipes);
+  app.enableCors();
 
   const config = new DocumentBuilder()
   .setTitle('API Documentation')

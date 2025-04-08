@@ -19,4 +19,11 @@ export class CloudinaryController {
     const results = await this.cloudinaryService.uploadMultipleImages(files);
     return { urls: results.map(result => result.url) };
   }
+
+  @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    const fileUrl = await this.cloudinaryService.uploadFile(file);
+    return { url: fileUrl };
+  }
 }
