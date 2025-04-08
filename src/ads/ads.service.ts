@@ -37,9 +37,19 @@ export class AdsService {
     }
   }
 
-  async findAll() {
+  async findAll(user?: User) {
     try {
+      let whereCondition = {};
+
+    if (user) {
+      if (user.role === 'SUPER_ADMIN') {
+        whereCondition = {};
+      } else if (user.role === 'TRADER_SELLER' || user.role === 'PRIVATE_SELLER') {
+        whereCondition = { userId: user.id };
+      }
+    }
       const ads = await this.prisma.ads.findMany({
+        where: whereCondition,
         include: {
           user: true,
           _count: {
