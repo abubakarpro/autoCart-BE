@@ -3,7 +3,7 @@ import { CreateAdDto } from './dto/create-ad.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { User } from '../common/user.interface';
-import { AdQueryDto } from './dto/ads-status.dto';
+import { AdQueryDto } from './dto/ads-query.dto';
 
 @Injectable()
 export class AdsService {
@@ -38,7 +38,7 @@ export class AdsService {
     }
   }
 
-  async findAll(status?: AdQueryDto, user?: User) {
+  async findAll(query?: AdQueryDto, user?: User) {
     try {
       let whereCondition: any = {};
 
@@ -50,8 +50,15 @@ export class AdsService {
       }
     }
 
-    if (status) {
-      whereCondition.status = status; 
+    if (query?.status) {
+      whereCondition.status = query.status;
+    }
+
+    if (query?.itemName) {
+      whereCondition.itemName = {
+        contains: query.itemName,
+        mode: 'insensitive', // makes search case-insensitive
+      };
     }
 
       const ads = await this.prisma.ads.findMany({

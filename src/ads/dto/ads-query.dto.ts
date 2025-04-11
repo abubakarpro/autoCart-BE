@@ -1,4 +1,4 @@
-import { IsOptional, IsEnum } from 'class-validator';
+import { IsOptional, IsEnum, IsString } from 'class-validator';
 
 export enum AdStatus {
   NEW = 'NEW',
@@ -12,5 +12,9 @@ export enum AdStatus {
 export class AdQueryDto {
   @IsOptional()
   @IsEnum(AdStatus, { message: 'Invalid ad status' })
-  adStatus?: AdStatus;
+  status?: AdStatus;
+
+  @IsOptional()
+  @IsString()
+  itemName?: string;
 }
