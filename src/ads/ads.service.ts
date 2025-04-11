@@ -3,6 +3,7 @@ import { CreateAdDto } from './dto/create-ad.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { User } from '../common/user.interface';
+import { AdQueryDto } from './dto/ads-status.dto';
 
 @Injectable()
 export class AdsService {
@@ -37,9 +38,9 @@ export class AdsService {
     }
   }
 
-  async findAll(user?: User) {
+  async findAll(status?: AdQueryDto, user?: User) {
     try {
-      let whereCondition = {};
+      let whereCondition: any = {};
 
     if (user) {
       if (user.role === 'SUPER_ADMIN') {
@@ -48,6 +49,11 @@ export class AdsService {
         whereCondition = { userId: user.id };
       }
     }
+
+    if (status) {
+      whereCondition.status = status; 
+    }
+
       const ads = await this.prisma.ads.findMany({
         where: whereCondition,
         include: {

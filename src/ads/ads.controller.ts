@@ -1,10 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { JwtGuard } from "../auth/jwt/jwt.guard";
 import { GetUser } from "../auth/jwt/get-user.decorator";
 import { AdsService } from './ads.service';
 import { CreateAdDto } from './dto/create-ad.dto';
 import { User } from '../common/user.interface';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optionjwt.guard';
+import { AdQueryDto } from './dto/ads-status.dto';
+import { AdStatus } from '@prisma/client';
+import { ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('ads')
 export class AdsController {
@@ -12,14 +15,21 @@ export class AdsController {
 
   @Post()
   @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   create(@Body() createAdDto: CreateAdDto, @GetUser() user:User) {
     return this.adsService.create(createAdDto, user);
   }
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
-  findAll(@GetUser() user?:User) {
-    return this.adsService.findAll(user);
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: AdStatus,
+    description: 'Filter ads by status (e.g., PENDING, REJECTED, APPROVED)',
+  })
+  findAll(@Query('status') status?: AdQueryDto, @GetUser() user?:User) {
+    return this.adsService.findAll(status, user);
   }
 
   @Get(':id')
@@ -29,12 +39,14 @@ export class AdsController {
 
   @Patch(':id')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   update(@Param('id') id: string, @Body() updateAdDto: CreateAdDto) {
     return this.adsService.update(id, updateAdDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   remove(@Param('id') id: string) {
     return this.adsService.remove(id);
   }

@@ -8,14 +8,18 @@ export class DashboardAnalyticsService {
   constructor(private prisma: PrismaService) {}
 
 
-  async getAdAnalytics() {
+  async getAdAnalytics(date?: string) {
+    const targetDate = date ? moment(date) : moment();
+    const start = targetDate.startOf('day').toDate();
+    const end = targetDate.endOf('day').toDate();
+  
     const totalAds = await this.prisma.ads.count();
   
     const todayAdsCount = await this.prisma.ads.count({
       where: {
         createdAt: {
-          gte: moment().startOf('day').toDate(),
-          lte: moment().endOf('day').toDate(),
+          gte: start,
+          lte: end,
         },
       },
     });
@@ -29,7 +33,6 @@ export class DashboardAnalyticsService {
       }))
     );
   
-
     return {
       success: true,
       data: {
@@ -40,48 +43,54 @@ export class DashboardAnalyticsService {
       message: 'Ad analytics fetched successfully',
     };
   }
+  
 
 
-async getUserAnalytics() {
-  const [totalUsers, activeUsers, suspendedUsers, bannedUsers, dailyRegistered, dailyLoggedIn] =
-    await Promise.all([
-      this.prisma.user.count(), 
-      this.prisma.user.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.user.count({ where: { status: 'SUSPENDED' } }), 
-      this.prisma.user.count({ where: { status: 'BANNED' } }), 
-
-      this.prisma.user.count({
-        where: {
-          createdAt: {
-            gte: moment().startOf('day').toDate(),
-            lte: moment().endOf('day').toDate(),
+  async getUserAnalytics(date?: string) {
+    const targetDate = date ? moment(date) : moment();
+    const start = targetDate.startOf('day').toDate();
+    const end = targetDate.endOf('day').toDate();
+  
+    const [totalUsers, activeUsers, suspendedUsers, bannedUsers, dailyRegistered, dailyLoggedIn] =
+      await Promise.all([
+        this.prisma.user.count(),
+        this.prisma.user.count({ where: { status: 'ACTIVE' } }),
+        this.prisma.user.count({ where: { status: 'SUSPENDED' } }),
+        this.prisma.user.count({ where: { status: 'BANNED' } }),
+  
+        this.prisma.user.count({
+          where: {
+            createdAt: {
+              gte: start,
+              lte: end,
+            },
           },
-        },
-      }),
-
-      this.prisma.user.count({
-        where: {
-          lastLogin: {
-            gte: moment().startOf('day').toDate(),
-            lte: moment().endOf('day').toDate(),
+        }),
+  
+        this.prisma.user.count({
+          where: {
+            lastLogin: {
+              gte: start,
+              lte: end,
+            },
           },
-        },
-      }),
-    ]);
-
-  return {
-    success: true,
-    data: {
-      totalUsers,
-      activeUsers,
-      suspendedUsers,
-      bannedUsers,
-      dailyRegistered,
-      dailyLoggedIn,
-    },
-    message: 'User analytics fetched successfully',
-  };
-}
+        }),
+      ]);
+  
+    return {
+      success: true,
+      data: {
+        totalUsers,
+        activeUsers,
+        suspendedUsers,
+        bannedUsers,
+        dailyRegistered,
+        dailyLoggedIn,
+      },
+      message: 'User analytics fetched successfully',
+    };
+  }
+  
 
   
 

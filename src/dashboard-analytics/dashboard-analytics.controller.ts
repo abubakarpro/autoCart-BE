@@ -1,10 +1,10 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, Query } from '@nestjs/common';
 import { DashboardAnalyticsService } from './dashboard-analytics.service';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '@prisma/client';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('Dashboard Analytics')
 @UseGuards(JwtGuard, RolesGuard)
@@ -15,13 +15,25 @@ export class DashboardAnalyticsController {
 
   @Get('ads')
   @Roles(Role.SUPER_ADMIN)
-  getAdAnalytics() {
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    type: String,
+    description: 'Date in YYYY-MM-DD format (optional)',
+  })
+  getAdAnalytics(@Query('date') date?: string) {
     return this.dashboardAnalyticsService.getAdAnalytics();
   }
 
   @Get('users')
   @Roles(Role.SUPER_ADMIN)
-  getUserAnalytics() {
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    type: String,
+    description: 'Date in YYYY-MM-DD format (optional)',
+  })
+  getUserAnalytics(@Query('date') date?: string) {
     return this.dashboardAnalyticsService.getUserAnalytics();
   }
 
