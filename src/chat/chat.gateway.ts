@@ -26,12 +26,13 @@ export class ChatGateway {
 
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
-    @MessageBody() messageData: { chatRoomId: string; senderId: string; content: string; fileUrls?: string[] },
+    @MessageBody() messageData: { chatRoomId: string; senderId: string; receiverId: string; content: string; fileUrls?: string[] },
     @ConnectedSocket() client: Socket,
   ) {
     const message = await this.chatService.sendMessage(
       messageData.chatRoomId,
       messageData.senderId,
+      messageData.receiverId,
       messageData.content,
       messageData.fileUrls,
     );
