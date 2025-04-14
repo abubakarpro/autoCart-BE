@@ -1,6 +1,12 @@
-import { Controller, Post, Body, Get, Param, Delete, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Patch , UseGuards} from '@nestjs/common';
 import { ChatService } from './chat.service';
-
+import { JwtGuard } from '../auth/jwt/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
+import {
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
@@ -15,17 +21,19 @@ export class ChatController {
     return this.chatService.getMessages(chatRoomId);
   }
 
-  @Get('reported-messages')
-  getReportedMessages() {
-    return this.chatService.getReportedMessages();
+  @Post('report-message')
+  async reportMessage(
+    @Body() data: { messageId: string; userId: string; reason?: string },
+  ) {
+    return this.chatService.reportMessage(data.messageId, data.userId, data.reason);
   }
 
-  @Patch('message/:messageId/report')
-  reportMessage(
-    @Param('messageId') messageId: string,
-    @Body('reportReason') reportReason: string,
-  ) {
-    return this.chatService.reportMessage(messageId, reportReason);
+  @UseGuards(JwtGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.SUPER_ADMIN)
+  @Get('reported-messages')
+  async getReportedMessages() {
+    return this.chatService.getReportedMessages();
   }
 
   @Delete('message/:messageId')

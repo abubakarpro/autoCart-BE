@@ -42,6 +42,7 @@ export class ChatService {
   async sendMessage(
     chatRoomId: string,
     senderId: string,
+    receiverId: string,
     content: string,
     fileUrls?: string[],
   ) {
@@ -50,6 +51,7 @@ export class ChatService {
         data: {
           chatRoom: { connect: { id: chatRoomId } },
           sender: { connect: { id: senderId } },
+          receiver: { connect: { id: receiverId } }, // 👈 added
           content,
           fileUrls,
         },
@@ -59,12 +61,20 @@ export class ChatService {
               id: true,
               name: true,
               email: true,
-              profileImage: true, 
+              profileImage: true,
+            },
+          },
+          receiver: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              profileImage: true,
             },
           },
         },
       });
-
+  
       return {
         success: true,
         message: 'Successfully sent Message.',
@@ -86,45 +96,10 @@ export class ChatService {
               id: true,
               name: true,
               email: true,
-              profileImage: true, 
+              profileImage: true,
             },
           },
-        },
-      });
-
-      return {
-        success: true,
-        message: 'Successfully fetched Messages.',
-        data: messages,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async reportMessage(messageId: string, reportReason: string) {
-    try {
-      const message = await this.prisma.message.update({
-        where: { id: messageId },
-        data: { reported: true, reportReason },
-      });
-  
-      return {
-        success: true,
-        message: 'Message reported successfully.',
-        data: message,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getReportedMessages() {
-    try {
-      const reportedMessages = await this.prisma.message.findMany({
-        where: { reported: true },
-        include: {
-          sender: {
+          receiver: {
             select: {
               id: true,
               name: true,
@@ -137,8 +112,8 @@ export class ChatService {
   
       return {
         success: true,
-        message: 'Successfully fetched reported messages.',
-        data: reportedMessages,
+        message: 'Successfully fetched Messages.',
+        data: messages,
       };
     } catch (error) {
       throw error;
@@ -180,6 +155,60 @@ export class ChatService {
         success: true,
         message: 'Chat deleted successfully.',
         data: chatRoom,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async reportMessage(messageId: string, userId: string, reason?: string) {
+    try {
+      const existingReport = await this.prisma.messageReport.findUnique({
+        where: { messageId_userId: { messageId, userId } },
+      });
+
+      if (existingReport) {
+        return {
+          success: false,
+          message: 'This message has already been reported by the user.',
+        };
+      }
+
+      const report = await this.prisma.messageReport.create({
+        data: {
+          messageId,
+          userId,
+          reason,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Message reported successfully.',
+        data: report,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getReportedMessages() {
+    try {
+      const reportedMessages = await this.prisma.messageReport.findMany({
+        include: {
+          message: {
+            include: {
+              sender: true, 
+            },
+          },
+          user: true, 
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Reported messages retrieved successfully.',
+        data: reportedMessages,
       };
     } catch (error) {
       throw error;
