@@ -192,26 +192,4 @@ export class ChatService {
     }
   }
 
-  async getReportedMessages() {
-    try {
-      const reportedMessages = await this.prisma.messageReport.findMany({
-        include: {
-          message: {
-            include: {
-              sender: true, 
-            },
-          },
-          user: true, 
-        },
-      });
-
-      return {
-        success: true,
-        message: 'Reported messages retrieved successfully.',
-        data: reportedMessages,
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
 }

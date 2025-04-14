@@ -28,14 +28,6 @@ export class ChatController {
     return this.chatService.reportMessage(data.messageId, data.userId, data.reason);
   }
 
-  @UseGuards(JwtGuard, RolesGuard)
-  @ApiBearerAuth()
-  @Roles(Role.SUPER_ADMIN)
-  @Get('reported-messages')
-  async getReportedMessages() {
-    return this.chatService.getReportedMessages();
-  }
-
   @Delete('message/:messageId')
   deleteMessage(@Param('messageId') messageId: string) {
     return this.chatService.deleteMessage(messageId);

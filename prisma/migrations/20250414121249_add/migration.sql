@@ -1,0 +1,7 @@
+-- AlterTable
+ALTER TABLE "AdReport" ADD COLUMN     "count" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "isRead" BOOLEAN NOT NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE "UserReport" ADD COLUMN     "count" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "isRead" BOOLEAN NOT NULL DEFAULT false;

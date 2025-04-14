@@ -22,6 +22,8 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+import { CreateUserReportDto } from './dto/create-user-report.dto';
+import { User } from 'src/common/user.interface';
 
 @ApiTags('User')
 @Controller('users')
@@ -29,6 +31,12 @@ import {
 @ApiBearerAuth()
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+
+  @Post('report')
+  async reportUser(@Body() dto: CreateUserReportDto, @GetUser() user:User) {
+    return this.userService.reportUser(dto, user);
+  }
 
   @Get()
   @Roles(Role.SUPER_ADMIN)
@@ -102,4 +110,5 @@ export class UserController {
   async getUserStats() {
     return this.userService.getUserStats();
   }
+
 }

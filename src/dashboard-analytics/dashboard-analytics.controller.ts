@@ -1,4 +1,11 @@
-import { Controller, Get, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Query,
+  Patch,
+  Param,
+} from '@nestjs/common';
 import { DashboardAnalyticsService } from './dashboard-analytics.service';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -11,7 +18,25 @@ import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller('dashboard-analytics')
 export class DashboardAnalyticsController {
-  constructor(private readonly dashboardAnalyticsService: DashboardAnalyticsService) {}
+  constructor(
+    private readonly dashboardAnalyticsService: DashboardAnalyticsService,
+  ) {}
+
+  @Roles(Role.SUPER_ADMIN)
+  @Get('reported-users')
+  async getAllReportedUsers(@Query('isRead') isRead?: string) {
+    const parsedIsRead =
+      isRead === 'true' ? true : isRead === 'false' ? false : undefined;
+    return this.dashboardAnalyticsService.getAllReportedUsers(parsedIsRead);
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @Get('reported-ads')
+  async getAllReportedAds(@Query('isRead') isRead?: string) {
+    const parsedIsRead =
+      isRead === 'true' ? true : isRead === 'false' ? false : undefined;
+    return this.dashboardAnalyticsService.getAllReportedAds(parsedIsRead);
+  }
 
   @Get('ads')
   @Roles(Role.SUPER_ADMIN)
@@ -37,4 +62,31 @@ export class DashboardAnalyticsController {
     return this.dashboardAnalyticsService.getUserAnalytics();
   }
 
+  @UseGuards(JwtGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.SUPER_ADMIN)
+  @Get('reported-messages')
+  async getReportedMessages(@Query('timeFrame') timeFrame: string) {
+    return this.dashboardAnalyticsService.getReportedMessages(timeFrame);
+  }
+
+  @UseGuards(JwtGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.SUPER_ADMIN)
+  @Get('reported-messages-counts')
+  async getReportedMessagesCounts() {
+    return await this.dashboardAnalyticsService.getAllReportedMessagesCount();
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @Patch('reported-users/:id/read')
+  async markUserReportAsRead(@Param('id') id: string) {
+    return this.dashboardAnalyticsService.markUserReportAsRead(id);
+  }
+
+  @Roles(Role.SUPER_ADMIN)
+  @Patch('reported-ads/:id/read')
+  async markAdReportAsRead(@Param('id') id: string) {
+    return this.dashboardAnalyticsService.markAdReportAsRead(id);
+  }
 }

@@ -8,6 +8,7 @@ import { OptionalJwtAuthGuard } from 'src/auth/guards/optionjwt.guard';
 import { AdQueryDto } from './dto/ads-query.dto';
 import { AdStatus } from '@prisma/client';
 import { ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { CreateAdReportDto } from './dto/create-ad-report.dto';
 
 @Controller('ads')
 export class AdsController {
@@ -18,6 +19,12 @@ export class AdsController {
   @ApiBearerAuth()
   create(@Body() createAdDto: CreateAdDto, @GetUser() user:User) {
     return this.adsService.create(createAdDto, user);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('report')
+  async reportAd(@Body() dto: CreateAdReportDto, @GetUser() user:User) {
+    return this.adsService.reportAd(dto, user);
   }
 
   @Get()

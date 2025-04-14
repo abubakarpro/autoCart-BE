@@ -89,9 +89,27 @@ model User {
   AdInteraction    AdInteraction[]
   notifications    Notification[]
   ChatParticipant  ChatParticipant[]
-  sentMessages     Message[]  @relation("SentMessages")
-  receivedMessages Message[]  @relation("ReceivedMessages")
+  sentMessages     Message[]         @relation("SentMessages")
+  receivedMessages Message[]         @relation("ReceivedMessages")
   messageReports   MessageReport[]
+  reportedUsers    UserReport[]      @relation("ReportedBy")
+  userReports      UserReport[]      @relation("UserBeingReported")
+  adReports        AdReport[]        @relation("AdReportedBy")
+}
+
+model UserReport {
+  id           String @id @default(uuid())
+  reportedById String
+  reportedBy   User   @relation("ReportedBy", fields: [reportedById], references: [id])
+
+  reportedUserId String
+  reportedUser   User   @relation("UserBeingReported", fields: [reportedUserId], references: [id])
+
+  isRead Boolean @default(false)
+  count  Int     @default(autoincrement())
+
+  reason    String
+  createdAt DateTime @default(now())
 }
 
 model VerifyUser {
@@ -151,6 +169,21 @@ model Ads {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   AdInteraction AdInteraction[]
+  adReports     AdReport[]
+}
+
+model AdReport {
+  id           String @id @default(uuid())
+  reportedById String
+  reportedBy   User   @relation("AdReportedBy", fields: [reportedById], references: [id])
+
+  adId String
+  ad   Ads    @relation(fields: [adId], references: [id])
+
+  reason    String
+  isRead    Boolean  @default(false)
+  count     Int      @default(autoincrement())
+  createdAt DateTime @default(now())
 }
 
 model Follower {
@@ -244,8 +277,8 @@ model Message {
   deletedAt  DateTime? // Soft delete field
 
   chatRoom ChatRoom        @relation(fields: [chatRoomId], references: [id])
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  sender   User            @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User            @relation("ReceivedMessages", fields: [receiverId], references: [id])
   reports  MessageReport[]
 }
 
@@ -259,5 +292,5 @@ model MessageReport {
   message Message @relation(fields: [messageId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
 
-  @@unique([messageId, userId]) 
+  @@unique([messageId, userId])
 }
