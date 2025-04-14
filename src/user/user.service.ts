@@ -1,13 +1,13 @@
 import {
   Injectable,
-  NotFoundException,
-  BadRequestException,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Role, UserStatus, Prisma } from '@prisma/client';
+import { CreateUserReportDto } from './dto/create-user-report.dto';
+import { User } from 'src/common/user.interface';
 
 interface FindAllUsersParams {
   page: number;
@@ -282,6 +282,49 @@ export class UserService {
         success: true,
         message: 'User stats fetched successfully',
         data: stats,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async reportUser(dto: CreateUserReportDto, user: User) {
+    try {
+      const { reportedUserId, reason } = dto;
+  
+      if (reportedUserId === user.id) {
+        throw new HttpException(
+          'You cannot report yourself',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+  
+      const existing = await this.prisma.userReport.findFirst({
+        where: {
+          reportedUserId,
+          reportedById: user.id,
+        },
+      });
+  
+      if (existing) {
+        throw new HttpException(
+          'You have already reported this user.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+  
+      const report = await this.prisma.userReport.create({
+        data: {
+          reportedUserId,
+          reportedById: user.id,
+          reason,
+        },
+      });
+  
+      return {
+        success: true,
+        data: report,
+        message: 'User reported successfully',
       };
     } catch (error) {
       throw error;

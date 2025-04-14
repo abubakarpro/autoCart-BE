@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { StoryService } from '../story/story.service';
 import { User } from '../common/user.interface';
 import { AdQueryDto } from './dto/ads-query.dto';
+import { CreateAdReportDto } from './dto/create-ad-report.dto';
 
 @Injectable()
 export class AdsService {
@@ -154,6 +155,42 @@ export class AdsService {
         success: true,
         data: ads,
         message: 'Ad deleted successfully',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async reportAd(dto: CreateAdReportDto, user:User) {
+    try {
+      const { adId, reason } = dto;
+  
+      const existing = await this.prisma.adReport.findFirst({
+        where: {
+          adId,
+          reportedById: user.id,
+        },
+      });
+  
+      if (existing) {
+        throw new HttpException(
+          'You have already reported this ad.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+  
+      const report = await this.prisma.adReport.create({
+        data: {
+          adId,
+          reportedById:user.id,
+          reason,
+        },
+      });
+  
+      return {
+        success: true,
+        data: report,
+        message: 'Ad reported successfully',
       };
     } catch (error) {
       throw error;
