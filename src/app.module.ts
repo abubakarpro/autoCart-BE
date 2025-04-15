@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { ConfigModule } from '@nestjs/config';
 import { AdsModule } from './ads/ads.module';
 import { CategoryModule } from './category/category.module';
 import { FollowerModule } from './follower/follower.module';
@@ -27,7 +28,7 @@ import { DashboardAnalyticsModule } from './dashboard-analytics/dashboard-analyt
     AdInteractionModule,
     NotificationModule,
     ChatModule,
-    DashboardAnalyticsModule
+    DashboardAnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

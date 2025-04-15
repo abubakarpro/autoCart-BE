@@ -1,6 +1,14 @@
-import { Controller, Get, Post, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
+
 import { FollowerService } from './follower.service';
-import { JwtGuard } from "../auth/jwt/jwt.guard";
+import { JwtGuard } from '../auth/jwt/jwt.guard';
 
 @Controller('follower')
 export class FollowerController {
@@ -8,13 +16,19 @@ export class FollowerController {
 
   @Post(':followerId/follow/:followingId')
   @UseGuards(JwtGuard)
-  follow(@Param('followerId') followerId: string, @Param('followingId') followingId: string) {
+  follow(
+    @Param('followerId') followerId: string,
+    @Param('followingId') followingId: string,
+  ) {
     return this.followerService.followUser(followerId, followingId);
   }
 
   @Delete(':followerId/unfollow/:followingId')
   @UseGuards(JwtGuard)
-  unfollow(@Param('followerId') followerId: string, @Param('followingId') followingId: string) {
+  unfollow(
+    @Param('followerId') followerId: string,
+    @Param('followingId') followingId: string,
+  ) {
     return this.followerService.unfollowUser(followerId, followingId);
   }
 

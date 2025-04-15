@@ -9,12 +9,6 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { UserService } from './user.service';
-import { JwtGuard } from '../auth/jwt/jwt.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role, UserStatus } from '@prisma/client';
-import { GetUser } from '../auth/jwt/get-user.decorator';
 import {
   ApiTags,
   ApiOperation,
@@ -22,8 +16,16 @@ import {
   ApiBearerAuth,
   ApiQuery,
 } from '@nestjs/swagger';
+
+import { Role, UserStatus } from '@prisma/client';
+
+import { UserService } from './user.service';
+import { JwtGuard } from '../auth/jwt/jwt.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { GetUser } from '../auth/jwt/get-user.decorator';
 import { CreateUserReportDto } from './dto/create-user-report.dto';
-import { User } from 'src/common/user.interface';
+import { User } from '../common/user.interface';
 
 @ApiTags('User')
 @Controller('users')
@@ -32,9 +34,8 @@ import { User } from 'src/common/user.interface';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-
   @Post('report')
-  async reportUser(@Body() dto: CreateUserReportDto, @GetUser() user:User) {
+  async reportUser(@Body() dto: CreateUserReportDto, @GetUser() user: User) {
     return this.userService.reportUser(dto, user);
   }
 
@@ -110,5 +111,4 @@ export class UserController {
   async getUserStats() {
     return this.userService.getUserStats();
   }
-
 }

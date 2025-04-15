@@ -1,11 +1,16 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  BadRequestException,
+} from '@nestjs/common';
+
+import { Role } from '@prisma/client';
+
+import { PrismaService } from '../prisma/prisma.service';
 import {
   generateRandom4DigitNumber,
   isEmailOrPhoneNumber,
 } from './utility.functions';
-import { Role } from '@prisma/client';
 
 @Injectable()
 export class VerifyService {
@@ -146,7 +151,7 @@ export class VerifyService {
             username: userToVerify.username,
           },
         });
-        
+
         throw new BadRequestException(`OTP expired for username : ${username}`);
       }
 
@@ -162,7 +167,7 @@ export class VerifyService {
         throw new BadRequestException(`OTP entered is incorrect`);
       }
 
-      if (userToVerify.otp === otp ) {
+      if (userToVerify.otp === otp) {
         const verifyUsername = await this.prismaService.user.update({
           where: {
             email: userToVerify.username,
@@ -178,7 +183,7 @@ export class VerifyService {
         });
         return verifyUsername;
         //return { message: `User ${username} verified.` };
-      } 
+      }
 
       // If the OTP is valid and within the time limit
       //return { message: `User ${username} verified. Please use ${username} for login` };

@@ -6,12 +6,13 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
+
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LogInDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JwtGuard } from './jwt/jwt.guard';
-import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 import { VerifyUserDto } from './dto/verify-user.dto';
 import { SendOTPDto } from './dto/send-otp.dto';
 

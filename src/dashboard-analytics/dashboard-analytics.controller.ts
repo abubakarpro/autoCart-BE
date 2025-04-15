@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+
+import { Role } from '@prisma/client';
+
 import { DashboardAnalyticsService } from './dashboard-analytics.service';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
-import { ApiTags, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
 @ApiTags('Dashboard Analytics')
 @UseGuards(JwtGuard, RolesGuard)
@@ -121,5 +123,4 @@ export class DashboardAnalyticsController {
   async markAdReportAsRead(@Param('id') id: string) {
     return this.dashboardAnalyticsService.markAdReportAsRead(id);
   }
-
 }

@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+
 require('dotenv').config();
+
 const nodemailer = require('nodemailer');
 
 @Injectable()
@@ -22,9 +24,8 @@ export class MailerService {
 
     transporter.sendMail(mailOptions, (error: { message: any }) => {
       if (error) {
-        console.log('Error in sending mail(mailer service)', error.message);
+        throw error;
       } else {
-        console.log('Email Sent');
       }
     });
   }
@@ -50,7 +51,7 @@ export class MailerService {
     doctor?: boolean,
   ) {
     const mailOptions = {
-      from: `"Cricket Tournament" <${process.env.APP_EMAIL}>`, // Pretty sender name
+      from: `"AUTO CART" <${process.env.APP_EMAIL}>`, // Pretty sender name
       to: recepient,
       subject: subject,
       html: `

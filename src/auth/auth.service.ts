@@ -1,11 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
-import { comparePassword, hashPassword } from 'src/utils/utility.functions';
-import { VerifyService } from 'src/utils/verify.service';
-import { JwtService } from '@nestjs/jwt';
-import { MailerService } from 'src/mailer/mailer.service';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+
+import { PrismaService } from '../prisma/prisma.service';
+import { RegisterDto } from './dto/register.dto';
+import { comparePassword, hashPassword } from '../utils/utility.functions';
+import { VerifyService } from '../utils/verify.service';
+import { MailerService } from '../mailer/mailer.service';
 import { LogInDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { VerifyUserDto } from './dto/verify-user.dto';

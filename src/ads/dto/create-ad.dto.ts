@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+
 import {
   IsString,
   IsEnum,
@@ -6,7 +8,6 @@ import {
   IsNumber,
   IsDateString,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import {
   AdStatus,
   ItemCondition,

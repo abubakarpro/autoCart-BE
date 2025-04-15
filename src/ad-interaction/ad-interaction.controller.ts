@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req} from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
+
 import { AdInteractionService } from './ad-interaction.service';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { GetUser } from "../auth/jwt/get-user.decorator";
-import { User } from 'src/common/user.interface';
+import { User } from '../common/user.interface';
 
 @Controller('ad-interaction')
 export class AdInteractionController {

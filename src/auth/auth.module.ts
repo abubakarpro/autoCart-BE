@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { PrismaModule } from 'src/prisma/prisma.module';
-import { MailerModule } from 'src/mailer/mailer.module';
-import { VerifyService } from 'src/utils/verify.service';
-import { JwtModule } from '@nestjs/jwt';
+import { PrismaModule } from '../prisma/prisma.module';
+import { MailerModule } from '../mailer/mailer.module';
+import { VerifyService } from '../utils/verify.service';
 import { JwtStrategy } from './jwt/jwt.strategy';
 
 @Module({

@@ -1,13 +1,15 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import { ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+
+import { AdStatus } from '@prisma/client';
+
 import { JwtGuard } from "../auth/jwt/jwt.guard";
 import { GetUser } from "../auth/jwt/get-user.decorator";
 import { AdsService } from './ads.service';
 import { CreateAdDto } from './dto/create-ad.dto';
 import { User } from '../common/user.interface';
-import { OptionalJwtAuthGuard } from 'src/auth/guards/optionjwt.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optionjwt.guard';
 import { AdQueryDto } from './dto/ads-query.dto';
-import { AdStatus } from '@prisma/client';
-import { ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateAdReportDto } from './dto/create-ad-report.dto';
 
 @Controller('ads')

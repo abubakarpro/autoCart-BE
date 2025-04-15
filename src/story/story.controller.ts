@@ -8,12 +8,13 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
+
 import { StoryService } from './story.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { GetUser } from '../auth/jwt/get-user.decorator';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
-import { User } from 'src/common/user.interface';
-import { Cron } from '@nestjs/schedule';
+import { User } from '../common/user.interface';
 import { CreateStoryReportDto } from './dto/create-story-report.dto';
 
 @Controller('story')
