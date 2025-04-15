@@ -232,4 +232,53 @@ export class DashboardAnalyticsService {
     return startOfWeek;
   }
 
+  async getStoryStats() {
+    const todayStart = moment().startOf('day').toDate();
+    const weekStart = moment().startOf('isoWeek').toDate(); // Monday as start of week
+    const monthStart = moment().startOf('month').toDate();
+    const yearStart = moment().startOf('year').toDate();
+
+    const [todayCount, weekCount, monthCount, yearCount] = await Promise.all([
+      this.prisma.story.count({ where: { createdAt: { gte: todayStart } } }),
+      this.prisma.story.count({ where: { createdAt: { gte: weekStart } } }),
+      this.prisma.story.count({ where: { createdAt: { gte: monthStart } } }),
+      this.prisma.story.count({ where: { createdAt: { gte: yearStart } } }),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        today: todayCount,
+        week: weekCount,
+        month: monthCount,
+        year: yearCount,
+      },
+      message: 'Story stats fetched successfully.',
+    };
+  }
+
+  async getAllReportedStories(isRead?: boolean) {
+    try {
+      const reports = await this.prisma.storyReport.findMany({
+        where: isRead !== undefined ? { isRead } : undefined,
+        include: {
+          story: {
+            include: {
+              user: true, 
+            },
+          },
+          reportedBy: true, 
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+  
+      return {
+        success: true,
+        data: reports,
+        message: 'Reported stories fetched successfully.',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

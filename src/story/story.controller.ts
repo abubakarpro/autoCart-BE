@@ -1,15 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+} from '@nestjs/common';
 import { StoryService } from './story.service';
 import { CreateStoryDto } from './dto/create-story.dto';
-import { GetUser } from "../auth/jwt/get-user.decorator";
+import { GetUser } from '../auth/jwt/get-user.decorator';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
 import { User } from 'src/common/user.interface';
 import { Cron } from '@nestjs/schedule';
+import { CreateStoryReportDto } from './dto/create-story-report.dto';
 
 @Controller('story')
 @UseGuards(JwtGuard)
 export class StoryController {
   constructor(private readonly storyService: StoryService) {}
+
+  @Post('report')
+  async reportStory(@Body() dto: CreateStoryReportDto, @GetUser() user: User) {
+    return this.storyService.reportStory(user, dto);
+  }
 
   @Post(':storyId/view')
   async viewStory(@Param('storyId') storyId: string, @GetUser() user: User) {
@@ -66,10 +81,9 @@ export class StoryController {
     return this.storyService.remove(id);
   }
 
-  //Deleting Stories 
+  //Deleting Stories
   @Cron('0 * * * *') // Runs every hour
   async deleteExpiredStories() {
     await this.storyService.deleteExpiredStories();
   }
-
 }
