@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
+
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { Express } from 'express';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()

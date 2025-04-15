@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+
 import { StoryService } from './story.service';
 import { StoryController } from './story.controller';
 import { PrismaModule } from '../prisma/prisma.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [PrismaModule, ScheduleModule.forRoot()],

@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
-
 
   async create(data: CreateCategoryDto) {
     try {
@@ -13,10 +13,10 @@ export class CategoryService {
       return {
         success: true,
         data: category,
-        message: "Successfully Category created",
+        message: 'Successfully Category created',
       };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -26,7 +26,7 @@ export class CategoryService {
       return {
         success: true,
         data: categories,
-        message: "Successfully Category fetched",
+        message: 'Successfully Category fetched',
       };
     } catch (error) {
       throw error;
@@ -37,12 +37,15 @@ export class CategoryService {
     try {
       const category = await this.prisma.category.findUnique({ where: { id } });
       if (!category) {
-        throw new HttpException(`Ad with id ${id} not found`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Ad with id ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
       return {
         success: true,
         data: category,
-        message: "Category fetched successfully",
+        message: 'Category fetched successfully',
       };
     } catch (error) {
       throw error;
@@ -51,11 +54,14 @@ export class CategoryService {
 
   async update(id: string, data: CreateCategoryDto) {
     try {
-      const category = await this.prisma.category.update({ where: { id }, data });
+      const category = await this.prisma.category.update({
+        where: { id },
+        data,
+      });
       return {
         success: true,
         data: category,
-        message: "Category updated successfully",
+        message: 'Category updated successfully',
       };
     } catch (error) {
       throw error;
@@ -68,7 +74,7 @@ export class CategoryService {
       return {
         success: true,
         data: category,
-        message: "Category deleted successfully",
+        message: 'Category deleted successfully',
       };
     } catch (error) {
       throw error;

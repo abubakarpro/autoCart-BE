@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
@@ -7,6 +8,9 @@ import { HttpExceptionFilter } from './utils/exception.handling';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('PORT') || 3000;
 
   const apiValidationPipes: ValidationPipe = new ValidationPipe({
     transform: true,
@@ -33,7 +37,7 @@ const document = SwaggerModule.createDocument(app, config);
 SwaggerModule.setup('api', app, document);
 
   app.useGlobalFilters(new HttpExceptionFilter());
-  await app.listen(3000);
+  await app.listen(port);
 }
 bootstrap();
 

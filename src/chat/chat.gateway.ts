@@ -5,7 +5,9 @@ import {
   MessageBody,
   ConnectedSocket,
 } from '@nestjs/websockets';
+
 import { Server, Socket } from 'socket.io';
+
 import { ChatService } from './chat.service';
 
 @WebSocketGateway({ cors: true })
@@ -26,7 +28,14 @@ export class ChatGateway {
 
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
-    @MessageBody() messageData: { chatRoomId: string; senderId: string; receiverId: string; content: string; fileUrls?: string[] },
+    @MessageBody()
+    messageData: {
+      chatRoomId: string;
+      senderId: string;
+      receiverId: string;
+      content: string;
+      fileUrls?: string[];
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const message = await this.chatService.sendMessage(

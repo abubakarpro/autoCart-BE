@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+
 import { CreateStoryDto } from './dto/create-story.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from 'src/common/user.interface';
+import { PrismaService } from '../prisma/prisma.service';
+import { User } from '../common/user.interface';
 import { CreateStoryReportDto } from './dto/create-story-report.dto';
-import moment from 'moment';
 
 @Injectable()
 export class StoryService {

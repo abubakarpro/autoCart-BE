@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateFollowerDto } from './dto/create-follower.dto';
-import { UpdateFollowerDto } from './dto/update-follower.dto';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -86,7 +85,8 @@ export class FollowerService {
 
       return {
         success: true,
-        message: 'Successfully retrieved the list of users the user is following.',
+        message:
+          'Successfully retrieved the list of users the user is following.',
         data: followingUser,
       };
     } catch (error) {

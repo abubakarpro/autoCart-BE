@@ -1,12 +1,7 @@
-import { Controller, Post, Body, Get, Param, Delete, Patch , UseGuards} from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete } from '@nestjs/common';
+
 import { ChatService } from './chat.service';
-import { JwtGuard } from '../auth/jwt/jwt.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
-import {
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
