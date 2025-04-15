@@ -94,6 +94,22 @@ export class DashboardAnalyticsController {
     return await this.dashboardAnalyticsService.getStoryStats();
   }
 
+  @UseGuards(JwtGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.SUPER_ADMIN)
+  @Get('active-stories')
+  getActiveStories() {
+    return this.dashboardAnalyticsService.getActiveStories();
+  }
+
+  @UseGuards(JwtGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.SUPER_ADMIN)
+  @Get('expired-stories')
+  getExpiredStories() {
+    return this.dashboardAnalyticsService.getExpiredStories();
+  }
+
   @Roles(Role.SUPER_ADMIN)
   @Patch('reported-users/:id/read')
   async markUserReportAsRead(@Param('id') id: string) {
@@ -105,4 +121,5 @@ export class DashboardAnalyticsController {
   async markAdReportAsRead(@Param('id') id: string) {
     return this.dashboardAnalyticsService.markAdReportAsRead(id);
   }
+
 }
