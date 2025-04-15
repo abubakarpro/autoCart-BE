@@ -281,4 +281,45 @@ export class DashboardAnalyticsService {
       throw error;
     }
   }
+
+  async getActiveStories() {
+    const currentTime = new Date();
+    const last24Hours = new Date(currentTime.getTime() - 24 * 60 * 60 * 1000);
+
+    const activeStories = await this.prisma.story.findMany({
+      where: {
+        deletedAt: null,
+        createdAt: {
+          gte: last24Hours,
+        },
+      },
+      include: {
+        ad: true,
+      },
+    });
+    return {
+      success: true,
+      data: activeStories,
+      message: 'Active Stories fetched successfully',
+    };
+  }
+
+
+  async getExpiredStories() {
+    const activeStories = await this.prisma.story.findMany({
+      where: {
+        deletedAt: {
+          not: null,
+        },
+      },
+      include: {
+        ad: true,
+      },
+    });
+    return {
+      success: true,
+      data: activeStories,
+      message: 'Expired Stories fetched successfully',
+    };
+  }
 }
