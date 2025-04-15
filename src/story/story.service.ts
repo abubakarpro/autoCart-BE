@@ -2,11 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from 'src/common/user.interface';
+import { CreateStoryReportDto } from './dto/create-story-report.dto';
+import moment from 'moment';
 
 @Injectable()
 export class StoryService {
   constructor(private prisma: PrismaService) {}
-
 
   async create(data: CreateStoryDto, user: User) {
     try {
@@ -19,20 +20,24 @@ export class StoryService {
       return {
         success: true,
         data: story,
-        message: "Successfully story created",
+        message: 'Successfully story created',
       };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
   async findAll() {
     try {
-      const stories = await this.prisma.story.findMany();
+      const stories = await this.prisma.story.findMany({
+        where: {
+          deletedAt: null,
+        },
+      });
       return {
         success: true,
         data: stories,
-        message: "Successfully Story fetched",
+        message: 'Successfully Story fetched',
       };
     } catch (error) {
       throw error;
@@ -41,14 +46,19 @@ export class StoryService {
 
   async findOne(id: string) {
     try {
-      const story = await this.prisma.story.findUnique({ where: { id } });
+      const story = await this.prisma.story.findUnique({
+        where: { id, deletedAt: null },
+      });
       if (!story) {
-        throw new HttpException(`Ad with id ${id} not found`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `Ad with id ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
       return {
         success: true,
         data: story,
-        message: "Story fetched successfully",
+        message: 'Story fetched successfully',
       };
     } catch (error) {
       throw error;
@@ -61,7 +71,7 @@ export class StoryService {
       return {
         success: true,
         data: story,
-        message: "Story updated successfully",
+        message: 'Story updated successfully',
       };
     } catch (error) {
       throw error;
@@ -70,11 +80,15 @@ export class StoryService {
 
   async remove(id: string) {
     try {
-      const story = await this.prisma.story.delete({ where: { id } });
+      const story = await this.prisma.story.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      });
+
       return {
         success: true,
         data: story,
-        message: "Category deleted successfully",
+        message: 'Story deleted successfully',
       };
     } catch (error) {
       throw error;
@@ -88,6 +102,7 @@ export class StoryService {
     const activeStories = await this.prisma.story.findMany({
       where: {
         userId: user.id,
+        deletedAt: null,
         createdAt: {
           gte: last24Hours,
         },
@@ -99,24 +114,26 @@ export class StoryService {
     return {
       success: true,
       data: activeStories,
-      message: "Active Stories fetched successfully",
+      message: 'Active Stories fetched successfully',
     };
   }
 
   async deleteExpiredStories() {
     const expiredDate = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    await this.prisma.story.deleteMany({
+    await this.prisma.story.updateMany({
       where: {
         createdAt: {
           lt: expiredDate,
         },
       },
+      data: {
+        deletedAt: new Date(), // Set the deletion timestamp
+      },
     });
   }
 
   async viewStory(storyId: string, userId: string) {
-    // Check if the user has already viewed the story
     const existingView = await this.prisma.storyView.findUnique({
       where: { userId_storyId: { userId, storyId } },
     });
@@ -124,8 +141,8 @@ export class StoryService {
     if (existingView) {
       return {
         success: true,
-        data: "",
-        message: "Story already viewed by the user.",
+        data: '',
+        message: 'Story already viewed by the user.',
       };
     }
 
@@ -137,30 +154,27 @@ export class StoryService {
       },
     });
 
-    return { 
+    return {
       success: true,
-      data: "",
-      message: 'Story viewed successfully.' 
+      data: '',
+      message: 'Story viewed successfully.',
     };
   }
 
   async getStoryViews(storyId: string) {
-    // Count total views for a specific story
-    try{
+    try {
       const totalViews = await this.prisma.storyView.count({
         where: { storyId },
       });
 
-      return { 
+      return {
         success: true,
         data: totalViews,
-        message: 'Story viewed successfully.' 
+        message: 'Story viewed successfully.',
       };
-  
-    }catch(error){
+    } catch (error) {
       throw error;
     }
-    
   }
 
   async getViewedStoriesByUser(userId: string) {
@@ -171,51 +185,51 @@ export class StoryService {
           story: true,
         },
       });
-  
-      const stories = viewedStories.map(view => view.story);
-  
+
+      const stories = viewedStories.map((view) => view.story);
+
       return {
         success: true,
         data: stories,
-        message: "Successfully fetched viewed stories",
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-  
-  // Get all stories of users the specific user is following
-  async getStoriesOfFollowingUsers(userId: string) {
-    try {
-      const followingUsers = await this.prisma.follower.findMany({
-        where: { followerId: userId },
-        select: { followingId: true },
-      });
-  
-      const followingUserIds = followingUsers.map(follow => follow.followingId);
-  
-      const stories = await this.prisma.story.findMany({
-        where: {
-          userId: { in: followingUserIds },
-        },
-      });
-  
-      return {
-        success: true,
-        data: stories,
-        message: "Successfully fetched stories of following users",
+        message: 'Successfully fetched viewed stories',
       };
     } catch (error) {
       throw error;
     }
   }
 
-  //trending Stories
+  async getStoriesOfFollowingUsers(userId: string) {
+    try {
+      const followingUsers = await this.prisma.follower.findMany({
+        where: { followerId: userId },
+        select: { followingId: true },
+      });
+
+      const followingUserIds = followingUsers.map(
+        (follow) => follow.followingId,
+      );
+
+      const stories = await this.prisma.story.findMany({
+        where: {
+          userId: { in: followingUserIds },
+        },
+      });
+
+      return {
+        success: true,
+        data: stories,
+        message: 'Successfully fetched stories of following users',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getTrendingStories() {
     try {
       const oneDayAgo = new Date();
       oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-  
+
       const trendingStories = await this.prisma.story.findMany({
         where: {
           views: {
@@ -223,6 +237,7 @@ export class StoryService {
               createdAt: { gte: oneDayAgo },
             },
           },
+          deletedAt: null,
         },
         include: {
           views: true,
@@ -231,17 +246,66 @@ export class StoryService {
         orderBy: {
           views: { _count: 'desc' },
         },
-        take: 10,
+        // take: 10,
       });
-  
+
       return {
         success: true,
         data: trendingStories,
-        message: "Successfully fetched trending stories",
+        message: 'Successfully fetched trending stories',
       };
     } catch (error) {
       throw error;
     }
   }
 
+  async reportStory(user: User, dto: CreateStoryReportDto) {
+    try {
+      const story = await this.prisma.story.findUnique({
+        where: { id: dto.storyId, deletedAt: null },
+      });
+
+      if (!story) {
+        return {
+          success: false,
+          data: null,
+          message: 'Story not found.',
+        };
+      }
+
+      const existingReport = await this.prisma.storyReport.findUnique({
+        where: {
+          storyId_reportedById: {
+            storyId: dto.storyId,
+            reportedById: user.id,
+          },
+        },
+      });
+
+      if (existingReport) {
+        return {
+          success: false,
+          data: null,
+          message: 'You have already reported this story.',
+        };
+      }
+
+      const report = await this.prisma.storyReport.create({
+        data: {
+          storyId: dto.storyId,
+          reportedById: user.id,
+          ReportCategory: dto.reportCategory,
+          reason: dto.reason,
+        },
+      });
+
+      return {
+        success: true,
+        data: report,
+        message: 'Story reported successfully.',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

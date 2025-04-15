@@ -38,6 +38,14 @@ export class DashboardAnalyticsController {
     return this.dashboardAnalyticsService.getAllReportedAds(parsedIsRead);
   }
 
+  @Roles(Role.SUPER_ADMIN)
+  @Get('reported-stories')
+  async getAllReportedStories(@Query('isRead') isRead?: string) {
+    const parsedIsRead =
+      isRead === 'true' ? true : isRead === 'false' ? false : undefined;
+    return this.dashboardAnalyticsService.getAllReportedStories(parsedIsRead);
+  }
+
   @Get('ads')
   @Roles(Role.SUPER_ADMIN)
   @ApiQuery({
@@ -76,6 +84,14 @@ export class DashboardAnalyticsController {
   @Get('reported-messages-counts')
   async getReportedMessagesCounts() {
     return await this.dashboardAnalyticsService.getAllReportedMessagesCount();
+  }
+
+  @UseGuards(JwtGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(Role.SUPER_ADMIN)
+  @Get('story-stats')
+  async getStoryStats() {
+    return await this.dashboardAnalyticsService.getStoryStats();
   }
 
   @Roles(Role.SUPER_ADMIN)

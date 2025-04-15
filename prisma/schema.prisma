@@ -63,6 +63,16 @@ enum NotificationType {
   CUSTOM
 }
 
+enum ReportCategory {
+  GENERAL
+  FRAUD
+  MISLEADING
+  VIOLATION
+  SPAM
+  INAPPROPRIATE
+  OTHER
+}
+
 model User {
   id               String            @id @default(uuid())
   name             String
@@ -95,6 +105,7 @@ model User {
   reportedUsers    UserReport[]      @relation("ReportedBy")
   userReports      UserReport[]      @relation("UserBeingReported")
   adReports        AdReport[]        @relation("AdReportedBy")
+  StoryReport      StoryReport[]
 }
 
 model UserReport {
@@ -104,6 +115,8 @@ model UserReport {
 
   reportedUserId String
   reportedUser   User   @relation("UserBeingReported", fields: [reportedUserId], references: [id])
+
+  ReportCategory ReportCategory @default(GENERAL)
 
   isRead Boolean @default(false)
   count  Int     @default(autoincrement())
@@ -180,6 +193,8 @@ model AdReport {
   adId String
   ad   Ads    @relation(fields: [adId], references: [id])
 
+  ReportCategory ReportCategory @default(GENERAL)
+
   reason    String
   isRead    Boolean  @default(false)
   count     Int      @default(autoincrement())
@@ -210,14 +225,17 @@ model AdInteraction {
 }
 
 model Story {
-  id                   String      @id @default(uuid())
+  id                   String        @id @default(uuid())
+  title                String?
   uploadImagesForStory String[]
-  createdAt            DateTime    @default(now())
+  createdAt            DateTime      @default(now())
+  deletedAt            DateTime?
   adId                 String?
-  ad                   Ads?        @relation(fields: [adId], references: [id])
+  ad                   Ads?          @relation(fields: [adId], references: [id])
   userId               String
-  user                 User        @relation(fields: [userId], references: [id])
+  user                 User          @relation(fields: [userId], references: [id])
   views                StoryView[]
+  StoryReport          StoryReport[]
 }
 
 model StoryView {
@@ -229,6 +247,24 @@ model StoryView {
   createdAt DateTime @default(now())
 
   @@unique([userId, storyId]) // Ensure one user can only view a story once
+}
+
+model StoryReport {
+  id      String @id @default(uuid())
+  storyId String
+  story   Story  @relation(fields: [storyId], references: [id])
+
+  reportedById String
+  reportedBy   User   @relation(fields: [reportedById], references: [id])
+
+  isRead         Boolean        @default(false)
+  count          Int            @default(autoincrement())
+  reason         String
+  ReportCategory ReportCategory @default(GENERAL)
+
+  createdAt DateTime @default(now())
+
+  @@unique([storyId, reportedById]) // Prevent duplicate reports by the same user
 }
 
 model Notification {
