@@ -102,10 +102,20 @@ export class DashboardAnalyticsService {
     };
   }
 
-  async getAllReportedUsers(isRead?: boolean) {
+  async getAllReportedUsers(isRead?: boolean, reportedUserId?: string) {
     try {
+      const whereClause: any = {};
+
+      if (isRead !== undefined) {
+        whereClause.isRead = isRead;
+      }
+
+      if (reportedUserId) {
+        whereClause.reportedUserId = reportedUserId;
+      }
+
       const reports = await this.prisma.userReport.findMany({
-        where: isRead !== undefined ? { isRead } : undefined,
+        where: whereClause,
         include: {
           reportedUser: true,
           reportedBy: true,
@@ -122,10 +132,20 @@ export class DashboardAnalyticsService {
     }
   }
 
-  async getAllReportedAds(isRead?: boolean) {
+  async getAllReportedAds(isRead?: boolean, reportedAdId?: string) {
     try {
+      const whereClause: any = {};
+
+      if (isRead !== undefined) {
+        whereClause.isRead = isRead;
+      }
+
+      if (reportedAdId) {
+        whereClause.adId = reportedAdId;
+      }
+
       const reports = await this.prisma.adReport.findMany({
-        where: isRead !== undefined ? { isRead } : undefined,
+        where: whereClause,
         include: {
           ad: true,
           reportedBy: true,
@@ -274,10 +294,20 @@ export class DashboardAnalyticsService {
     };
   }
 
-  async getAllReportedStories(isRead?: boolean) {
+  async getAllReportedStories(isRead?: boolean, reportedStoryId?: string) {
     try {
+      const whereClause: any = {};
+
+      if (isRead !== undefined) {
+        whereClause.isRead = isRead;
+      }
+
+      if (reportedStoryId) {
+        whereClause.storyId = reportedStoryId;
+      }
+
       const reports = await this.prisma.storyReport.findMany({
-        where: isRead !== undefined ? { isRead } : undefined,
+        where: whereClause,
         include: {
           story: {
             include: {

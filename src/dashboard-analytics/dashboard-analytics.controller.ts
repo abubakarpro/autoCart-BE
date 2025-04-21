@@ -26,26 +26,26 @@ export class DashboardAnalyticsController {
 
   @Roles(Role.SUPER_ADMIN)
   @Get('reported-users')
-  async getAllReportedUsers(@Query('isRead') isRead?: string) {
+  async getAllReportedUsers(@Query('isRead') isRead?: string, @Query('reportedUserId') reportedUserId?: string) {
     const parsedIsRead =
       isRead === 'true' ? true : isRead === 'false' ? false : undefined;
-    return this.dashboardAnalyticsService.getAllReportedUsers(parsedIsRead);
+    return this.dashboardAnalyticsService.getAllReportedUsers(parsedIsRead, reportedUserId);
   }
 
   @Roles(Role.SUPER_ADMIN)
   @Get('reported-ads')
-  async getAllReportedAds(@Query('isRead') isRead?: string) {
+  async getAllReportedAds(@Query('isRead') isRead?: string, @Query('reportedAdId') reportedAdId?: string,) {
     const parsedIsRead =
       isRead === 'true' ? true : isRead === 'false' ? false : undefined;
-    return this.dashboardAnalyticsService.getAllReportedAds(parsedIsRead);
+    return this.dashboardAnalyticsService.getAllReportedAds(parsedIsRead, reportedAdId);
   }
 
   @Roles(Role.SUPER_ADMIN)
   @Get('reported-stories')
-  async getAllReportedStories(@Query('isRead') isRead?: string) {
+  async getAllReportedStories(@Query('isRead') isRead?: string, @Query('reportedStoryId') reportedStoryId?: string) {
     const parsedIsRead =
       isRead === 'true' ? true : isRead === 'false' ? false : undefined;
-    return this.dashboardAnalyticsService.getAllReportedStories(parsedIsRead);
+    return this.dashboardAnalyticsService.getAllReportedStories(parsedIsRead, reportedStoryId);
   }
 
   @Get('ads')
