@@ -176,13 +176,14 @@ model Ads {
   loadCapacity     Float?
   engineSize       Int?
 
-  descriptions  String?
-  createDate    DateTime?       @default(now())
-  story         Story[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  AdInteraction AdInteraction[]
-  adReports     AdReport[]
+  descriptions          String?
+  createDate            DateTime?       @default(now())
+  countryOfRegistration String?
+  story                 Story[]
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  AdInteraction         AdInteraction[]
+  adReports             AdReport[]
 }
 
 model AdReport {

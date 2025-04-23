@@ -140,4 +140,9 @@ export class CreateAdDto {
   @IsNumber()
   @IsOptional()
   engineSize?: number;
+
+  @ApiProperty({ description: 'Country of Registration', example: 'PAKISTAN' })
+  @IsString()
+  @IsOptional()
+  countryOfRegistration?: string;
 }

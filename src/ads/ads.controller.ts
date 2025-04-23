@@ -1,10 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 
 import { AdStatus } from '@prisma/client';
 
-import { JwtGuard } from "../auth/jwt/jwt.guard";
-import { GetUser } from "../auth/jwt/get-user.decorator";
+import { JwtGuard } from '../auth/jwt/jwt.guard';
+import { GetUser } from '../auth/jwt/get-user.decorator';
 import { AdsService } from './ads.service';
 import { CreateAdDto } from './dto/create-ad.dto';
 import { User } from '../common/user.interface';
@@ -19,31 +29,30 @@ export class AdsController {
   @Post()
   @UseGuards(JwtGuard)
   @ApiBearerAuth()
-  create(@Body() createAdDto: CreateAdDto, @GetUser() user:User) {
+  create(@Body() createAdDto: CreateAdDto, @GetUser() user: User) {
     return this.adsService.create(createAdDto, user);
   }
 
   @UseGuards(JwtGuard)
   @Post('report')
-  async reportAd(@Body() dto: CreateAdReportDto, @GetUser() user:User) {
+  async reportAd(@Body() dto: CreateAdReportDto, @GetUser() user: User) {
     return this.adsService.reportAd(dto, user);
   }
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: AdStatus,
-    description: 'Filter ads by status (e.g., PENDING, REJECTED, APPROVED)',
-  })
-  @ApiQuery({
-    name: 'itemName',
-    required: false,
-    type: String,
-    description: 'Search ads by item name',
-  })
-  findAll(@Query() query: AdQueryDto, @GetUser() user?:User) {
+  @ApiQuery({name: 'status',required: false,enum: AdStatus})
+  @ApiQuery({name: 'itemName',required: false,type: String})
+  @ApiQuery({ name: 'minYear', required: false, type: Number })
+  @ApiQuery({ name: 'maxYear', required: false, type: Number })
+  @ApiQuery({ name: 'minPrice', required: false, type: Number })
+  @ApiQuery({ name: 'maxPrice', required: false, type: Number })
+  @ApiQuery({ name: 'minMileage', required: false, type: Number })
+  @ApiQuery({ name: 'maxMileage', required: false, type: Number })
+  @ApiQuery({ name: 'location', required: false, type: String })
+  @ApiQuery({ name: 'countryOfRegistration', required: false, type: String })
+  @ApiQuery({ name: 'categoryId', required: false, type: String })
+  findAll(@Query() query: AdQueryDto, @GetUser() user?: User) {
     return this.adsService.findAll(query, user);
   }
 
