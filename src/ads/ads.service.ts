@@ -42,27 +42,72 @@ export class AdsService {
 
   async findAll(query?: AdQueryDto, user?: User) {
     try {
-      let whereCondition: any = {};
-
-    if (user) {
-      if (user.role === 'SUPER_ADMIN') {
-        whereCondition = {};
-      } else if (user.role === 'TRADER_SELLER' || user.role === 'PRIVATE_SELLER') {
-        whereCondition = { userId: user.id };
+      const whereCondition: any = {};
+  
+      // User-specific filters
+      if (user && user.role !== 'SUPER_ADMIN') {
+        whereCondition.userId = user.id;
       }
-    }
-
-    if (query?.status) {
-      whereCondition.status = query.status;
-    }
-
-    if (query?.itemName) {
-      whereCondition.itemName = {
-        contains: query.itemName,
-        mode: 'insensitive', // makes search case-insensitive
-      };
-    }
-
+  
+      // Static filters
+      if (query?.status) {
+        whereCondition.status = query.status;
+      }
+  
+      if (query?.itemName) {
+        whereCondition.itemName = {
+          contains: query.itemName,
+          mode: 'insensitive',
+        };
+      }
+  
+      if (query?.location) {
+        whereCondition.location = {
+          contains: query.location,
+          mode: 'insensitive',
+        };
+      }
+  
+      if (query?.countryOfRegistration) {
+        whereCondition.countryOfRegistration = {
+          contains: query.countryOfRegistration,
+          mode: 'insensitive',
+        };
+      }
+  
+      if (query?.categoryId) {
+        whereCondition.categoryId = query.categoryId;
+      }
+  
+      const currentYear = new Date().getFullYear();
+  
+      if (query.minYear || query.maxYear) {
+        const minYear = query.minYear ?? 1900;
+        const maxYear = query.maxYear ?? currentYear;
+        if (maxYear > currentYear) {
+          throw new Error('Future year is not allowed');
+        }
+        whereCondition.yearOfProduction = {
+          gte: minYear,
+          lte: maxYear,
+        };
+      }
+  
+      if (query.minPrice || query.maxPrice) {
+        whereCondition.price = {
+          gte: query.minPrice ?? 0,
+          lte: query.maxPrice ?? Number.MAX_SAFE_INTEGER,
+        };
+      }
+  
+      if (query.minMileage || query.maxMileage) {
+        whereCondition.mileage = {
+          gte: query.minMileage ?? 0,
+          lte: query.maxMileage ?? Number.MAX_SAFE_INTEGER,
+        };
+      }
+  
+      // Fetch ads
       const ads = await this.prisma.ads.findMany({
         where: whereCondition,
         include: {
@@ -75,20 +120,17 @@ export class AdsService {
         },
       });
   
-      const formattedAds = await Promise.all(ads.map(async (ad) => {
-        const [likes, views, shares] = await Promise.all([
-          this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'LIKE' } }),
-          this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'VIEW' } }),
-          this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'SHARE' } }),
-        ]);
+      const formattedAds = await Promise.all(
+        ads.map(async (ad) => {
+          const [likes, views, shares] = await Promise.all([
+            this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'LIKE' } }),
+            this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'VIEW' } }),
+            this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'SHARE' } }),
+          ]);
   
-        return { 
-          ...ad, 
-          likes, 
-          views, 
-          shares 
-        };
-      }));
+          return { ...ad, likes, views, shares };
+        })
+      );
   
       return {
         success: true,
@@ -99,6 +141,7 @@ export class AdsService {
       throw error;
     }
   }
+  
 
   async findOne(id: string) {
     try {
