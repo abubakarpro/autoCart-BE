@@ -14,6 +14,7 @@ import { AdInteractionModule } from './ad-interaction/ad-interaction.module';
 import { NotificationModule } from './notification/notification.module';
 import { ChatModule } from './chat/chat.module';
 import { DashboardAnalyticsModule } from './dashboard-analytics/dashboard-analytics.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { DashboardAnalyticsModule } from './dashboard-analytics/dashboard-analyt
     NotificationModule,
     ChatModule,
     DashboardAnalyticsModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

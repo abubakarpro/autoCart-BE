@@ -6,12 +6,14 @@ import { StoryService } from '../story/story.service';
 import { User } from '../common/user.interface';
 import { AdQueryDto } from './dto/ads-query.dto';
 import { CreateAdReportDto } from './dto/create-ad-report.dto';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AdsService {
   constructor(
     private prisma: PrismaService,
     private storyService: StoryService,
+    private readonly redisService: RedisService,
   ) {}
 
   async create(data: CreateAdDto, user: User) {
@@ -30,6 +32,7 @@ export class AdsService {
         };
         await this.storyService.create(dataForStory, user);
       }
+      await this.redisService.clearAdsCache();
       return {
         success: true,
         data: ad,
@@ -42,45 +45,56 @@ export class AdsService {
 
   async findAll(query?: AdQueryDto, user?: User) {
     try {
+      const cacheKey = `ads:${JSON.stringify(query ?? {})}`;
+
+      const cached = await this.redisService.get(cacheKey);
+      console.log("cached", cached)
+      if (cached) {
+        return {
+          success: true,
+          data: JSON.parse(cached),
+          message: 'Ads fetched from cache',
+        };
+      }
       const whereCondition: any = {};
-  
+
       // User-specific filters
       if (user && user.role !== 'SUPER_ADMIN') {
         whereCondition.userId = user.id;
       }
-  
+
       // Static filters
       if (query?.status) {
         whereCondition.status = query.status;
       }
-  
+
       if (query?.itemName) {
         whereCondition.itemName = {
           contains: query.itemName,
           mode: 'insensitive',
         };
       }
-  
+
       if (query?.location) {
         whereCondition.location = {
           contains: query.location,
           mode: 'insensitive',
         };
       }
-  
+
       if (query?.countryOfRegistration) {
         whereCondition.countryOfRegistration = {
           contains: query.countryOfRegistration,
           mode: 'insensitive',
         };
       }
-  
+
       if (query?.categoryId) {
         whereCondition.categoryId = query.categoryId;
       }
-  
+
       const currentYear = new Date().getFullYear();
-  
+
       if (query.minYear || query.maxYear) {
         const minYear = query.minYear ?? 1900;
         const maxYear = query.maxYear ?? currentYear;
@@ -92,22 +106,21 @@ export class AdsService {
           lte: maxYear,
         };
       }
-  
+
       if (query.minPrice || query.maxPrice) {
         whereCondition.price = {
           gte: query.minPrice ?? 0,
           lte: query.maxPrice ?? Number.MAX_SAFE_INTEGER,
         };
       }
-  
+
       if (query.minMileage || query.maxMileage) {
         whereCondition.mileage = {
           gte: query.minMileage ?? 0,
           lte: query.maxMileage ?? Number.MAX_SAFE_INTEGER,
         };
       }
-  
-      // Fetch ads
+
       const ads = await this.prisma.ads.findMany({
         where: whereCondition,
         include: {
@@ -119,19 +132,27 @@ export class AdsService {
           },
         },
       });
-  
+
       const formattedAds = await Promise.all(
         ads.map(async (ad) => {
           const [likes, views, shares] = await Promise.all([
-            this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'LIKE' } }),
-            this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'VIEW' } }),
-            this.prisma.adInteraction.count({ where: { adId: ad.id, type: 'SHARE' } }),
+            this.prisma.adInteraction.count({
+              where: { adId: ad.id, type: 'LIKE' },
+            }),
+            this.prisma.adInteraction.count({
+              where: { adId: ad.id, type: 'VIEW' },
+            }),
+            this.prisma.adInteraction.count({
+              where: { adId: ad.id, type: 'SHARE' },
+            }),
           ]);
-  
+
           return { ...ad, likes, views, shares };
-        })
+        }),
       );
-  
+
+      await this.redisService.set(cacheKey, formattedAds, 120); // cache for 60 sec
+
       return {
         success: true,
         data: formattedAds,
@@ -141,7 +162,6 @@ export class AdsService {
       throw error;
     }
   }
-  
 
   async findOne(id: string) {
     try {
@@ -150,27 +170,27 @@ export class AdsService {
         where: { id },
         include: { user: true },
       });
-  
+
       if (!ad) {
         throw new HttpException(
           `Ad with id ${id} not found`,
           HttpStatus.NOT_FOUND,
         );
       }
-  
+
       const [likes, views, shares] = await Promise.all([
         this.prisma.adInteraction.count({ where: { adId: id, type: 'LIKE' } }),
         this.prisma.adInteraction.count({ where: { adId: id, type: 'VIEW' } }),
         this.prisma.adInteraction.count({ where: { adId: id, type: 'SHARE' } }),
       ]);
-  
+
       return {
         success: true,
-        data: { 
+        data: {
           ...ad,
           likes,
           views,
-          shares
+          shares,
         },
         message: 'Ad fetched successfully',
       };
@@ -182,6 +202,7 @@ export class AdsService {
   async update(id: string, data: CreateAdDto) {
     try {
       const ads = await this.prisma.ads.update({ where: { id }, data });
+      await this.redisService.clearAdsCache();
       return {
         success: true,
         data: ads,
@@ -195,6 +216,7 @@ export class AdsService {
   async remove(id: string) {
     try {
       const ads = await this.prisma.ads.delete({ where: { id } });
+      await this.redisService.clearAdsCache();
       return {
         success: true,
         data: ads,
@@ -205,32 +227,32 @@ export class AdsService {
     }
   }
 
-  async reportAd(dto: CreateAdReportDto, user:User) {
+  async reportAd(dto: CreateAdReportDto, user: User) {
     try {
       const { adId, reason } = dto;
-  
+
       const existing = await this.prisma.adReport.findFirst({
         where: {
           adId,
           reportedById: user.id,
         },
       });
-  
+
       if (existing) {
         throw new HttpException(
           'You have already reported this ad.',
           HttpStatus.BAD_REQUEST,
         );
       }
-  
+
       const report = await this.prisma.adReport.create({
         data: {
           adId,
-          reportedById:user.id,
+          reportedById: user.id,
           reason,
         },
       });
-  
+
       return {
         success: true,
         data: report,
@@ -240,4 +262,5 @@ export class AdsService {
       throw error;
     }
   }
+
 }
