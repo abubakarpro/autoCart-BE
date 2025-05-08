@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: nest-backend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - redis
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: "postgres://postgres:admin123@database-1.cn8cuiewwbwf.us-east-2.rds.amazonaws.com:5432/auto-cart-1?schema=public"
+      JWT_SECRET: "tdc1234"
+      Salt_Or_Rounds: 10
+      JWT_EXPIRY_TIME: "100000s"
+      CLOUDINARY_CLOUD_NAME: "dgbjpy7ev"
+      CLOUDINARY_API_KEY: "278248299317886"
+      CLOUDINARY_API_SECRET: "SPNdGFXd24YKWqQF5aH6sWAS_ek"
+      APP_EMAIL: "linktobakar@gmail.com"
+      APP_EMAIL_PASSWORD: "pkxapvglbfochmls"
+    networks:
+      - app-network
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
