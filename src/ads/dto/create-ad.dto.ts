@@ -145,4 +145,14 @@ export class CreateAdDto {
   @IsString()
   @IsOptional()
   countryOfRegistration?: string;
+
+  @ApiProperty({ description: 'City', example: 'Lahore' })
+  @IsString()
+  @IsOptional()
+  city?: string;
+
+  @ApiProperty({ description: 'City Area', example: 'Johar Town' })
+  @IsString()
+  @IsOptional()
+  area?: string;
 }

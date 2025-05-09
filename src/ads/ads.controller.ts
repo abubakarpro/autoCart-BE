@@ -41,8 +41,8 @@ export class AdsController {
 
   @Get()
   @UseGuards(OptionalJwtAuthGuard)
-  @ApiQuery({name: 'status',required: false,enum: AdStatus})
-  @ApiQuery({name: 'itemName',required: false,type: String})
+  @ApiQuery({ name: 'status',required: false, enum: AdStatus})
+  @ApiQuery({ name: 'itemName',required: false, type: String})
   @ApiQuery({ name: 'minYear', required: false, type: Number })
   @ApiQuery({ name: 'maxYear', required: false, type: Number })
   @ApiQuery({ name: 'minPrice', required: false, type: Number })
