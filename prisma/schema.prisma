@@ -164,6 +164,9 @@ model Ads {
   adType               AdType
   phoneNumber          String
   location             String
+  city                 String?
+  area                 String?
+  version              String?
   price                Float
   condition            ItemCondition
   priceCurrency        PriceCurrency
