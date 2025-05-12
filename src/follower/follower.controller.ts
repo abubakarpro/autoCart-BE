@@ -23,6 +23,15 @@ export class FollowerController {
     return this.followerService.followUser(followerId, followingId);
   }
 
+  @Get(':followerId/is-following/:followingId')
+  @UseGuards(JwtGuard)
+  isFollowing(
+    @Param('followerId') followerId: string,
+    @Param('followingId') followingId: string,
+  ) {
+    return this.followerService.isFollowing(followerId, followingId);
+  }
+
   @Delete(':followerId/unfollow/:followingId')
   @UseGuards(JwtGuard)
   unfollow(

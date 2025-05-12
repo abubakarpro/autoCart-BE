@@ -93,4 +93,23 @@ export class FollowerService {
       throw error;
     }
   }
+
+  async isFollowing(followerId: string, followingId: string) {
+    try {
+      const existingFollow = await this.prisma.follower.findFirst({
+        where: {
+          followerId,
+          followingId,
+        },
+      });
+  
+      return {
+        success: true,
+        isFollowing: !!existingFollow,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+  
 }
