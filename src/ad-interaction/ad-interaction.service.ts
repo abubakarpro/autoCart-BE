@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { User } from '../common/user.interface';
 
 @Injectable()
 export class AdInteractionService {
@@ -28,11 +29,12 @@ export class AdInteractionService {
     }
   }
 
-  async viewAd(adId: string) {
+  async viewAd(adId: string, user?: User) {
     try {
       const view = await this.prisma.adInteraction.create({
         data: {
           adId,
+          userId: user.id ?? null,
           type: 'VIEW',
         },
         include: {
@@ -49,10 +51,11 @@ export class AdInteractionService {
     }
   }
 
-  async shareAd(adId: string) {
+  async shareAd(adId: string, user?: User) {
     try {
       const share = await this.prisma.adInteraction.create({
         data: {
+          userId: user.id ?? null,
           adId,
           type: 'SHARE',
         },
@@ -165,6 +168,32 @@ export class AdInteractionService {
         success: true,
         data: likes,
         message: 'All ads liked successfully',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUserViewedAds(userId: string) {
+    try {
+      const views = await this.prisma.adInteraction.findMany({
+        where: {
+          userId,
+          type: 'VIEW',
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        include: {
+          ad: true,
+        },
+      });
+
+      const viewAdsData = views.map((view) => view.ad);
+      return {
+        success: true,
+        data: viewAdsData,
+        message: 'All viwed ads data fetched successfully',
       };
     } catch (error) {
       throw error;

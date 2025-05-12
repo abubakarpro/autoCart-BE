@@ -2,8 +2,9 @@ import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
 
 import { AdInteractionService } from './ad-interaction.service';
 import { JwtGuard } from '../auth/jwt/jwt.guard';
-import { GetUser } from "../auth/jwt/get-user.decorator";
+import { GetUser } from '../auth/jwt/get-user.decorator';
 import { User } from '../common/user.interface';
+import { OptionalJwtAuthGuard } from '../auth/guards/optionjwt.guard';
 
 @Controller('ad-interaction')
 export class AdInteractionController {
@@ -15,13 +16,11 @@ export class AdInteractionController {
     return this.adInteractionService.likeAllAds(user.id);
   }
 
-  // ✅ Unlike All Ads
   @Post('unlike-all')
   @UseGuards(JwtGuard)
   async unlikeAllAds(@GetUser() user: User) {
     return this.adInteractionService.unlikeAllAds(user.id);
   }
-
 
   @Get(':adId/like')
   @UseGuards(JwtGuard)
@@ -30,13 +29,15 @@ export class AdInteractionController {
   }
 
   @Get(':adId/view')
-  async viewAd(@Param('adId') adId: string) {
-    return this.adInteractionService.viewAd(adId);
+  @UseGuards(OptionalJwtAuthGuard)
+  async viewAd(@Param('adId') adId: string, @GetUser() user?: User) {
+    return this.adInteractionService.viewAd(adId, user);
   }
 
   @Get(':adId/share')
-  async shareAd(@Param('adId') adId: string) {
-    return this.adInteractionService.shareAd(adId);
+  @UseGuards(OptionalJwtAuthGuard)
+  async shareAd(@Param('adId') adId: string, @GetUser() user?: User) {
+    return this.adInteractionService.shareAd(adId, user);
   }
 
   @Get(':adId/likes')
@@ -53,4 +54,11 @@ export class AdInteractionController {
   async getAdShares(@Param('adId') adId: string) {
     return this.adInteractionService.getAdShares(adId);
   }
+
+  @Get('user/views')
+  @UseGuards(JwtGuard)
+  async getUserViewedAds(@GetUser() user: User) {
+    return this.adInteractionService.getUserViewedAds(user.id);
+  }
+
 }
