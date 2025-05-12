@@ -93,7 +93,10 @@ export class UserService {
 
   async findOne(id: string) {
     try {
-      const User = await this.prisma.user.findUnique({ where: { id } });
+      const User = await this.prisma.user.findUnique({
+        where: { id },
+        include: {},
+      });
       if (!User) {
         throw new HttpException(
           `User with id ${id} not found`,
@@ -103,7 +106,7 @@ export class UserService {
       return {
         success: true,
         data: User,
-        message: 'User fetched successfully',
+        message: 'User fetched successfully along with their ads.',
       };
     } catch (error) {
       throw error;
