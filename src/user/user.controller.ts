@@ -40,7 +40,7 @@ export class UserController {
   }
 
   @Get()
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN, Role.PRIVATE_SELLER, Role.TRADER_SELLER)
   @ApiOperation({ summary: 'Get all Users' })
   @ApiResponse({ status: 200, description: 'List of all Users.' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -65,7 +65,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(Role.SUPER_ADMIN, Role.PRIVATE_SELLER, Role.TRADER_SELLER)
   @ApiOperation({ summary: 'Get a User by ID' })
   @ApiResponse({ status: 200, description: 'The User with the given ID.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
